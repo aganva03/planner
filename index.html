@@ -35,6 +35,7 @@
     --accent: #f5f5f7; --accent-text: #000; --shadow: none; --glass: rgba(20,20,22,.8);
   }
 
+  [hidden] { display: none !important; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; background: var(--bg); color: var(--text);
@@ -82,7 +83,28 @@
     cursor: pointer; display: grid; place-items: center; line-height: 1;
     transition: transform .3s var(--spring);
   }
+  .btn-add.small { width: 54px; font-size: 18px; font-weight: 700; }
   .btn-add:active { transform: scale(.88) rotate(90deg); }
+
+  /* ---------- Чипы категорий ---------- */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 14px; scrollbar-width: none; margin: 0 -2px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; border: none; background: var(--card); color: var(--sub); font: inherit;
+    font-size: 14px; font-weight: 600; padding: 9px 15px; border-radius: 999px; cursor: pointer;
+    box-shadow: var(--shadow); white-space: nowrap;
+    transition: transform .25s var(--spring), background-color .3s, color .3s;
+  }
+  .chip:active { transform: scale(.92); }
+  .chip.on { background: var(--accent); color: var(--accent-text); }
+  .chip.danger { color: var(--danger); }
+
+  .cat-actions { display: flex; justify-content: flex-end; margin: -8px 0 8px; min-height: 0; }
+  .cat-actions:empty { display: none; }
+  .cat-actions button {
+    background: none; border: none; color: var(--danger); font: inherit;
+    font-size: 14px; font-weight: 600; padding: 6px 4px; cursor: pointer;
+  }
 
   /* ---------- Карточки ---------- */
   .card {
@@ -131,8 +153,30 @@
   .check.on svg { stroke-dashoffset: 0; }
   @keyframes pop { 0% { transform: scale(.75); } 60% { transform: scale(1.14); } 100% { transform: scale(1); } }
 
-  /* ---------- Цели: кольцо прогресса ---------- */
-  .goal { align-items: center; }
+  /* ---------- Приоритеты ---------- */
+  .pdot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; display: inline-block; margin-right: 8px; vertical-align: middle; }
+  .pdot.high { background: var(--text); box-shadow: 0 0 0 3px var(--fill); }
+  .pdot.mid { background: var(--sub); }
+  .pdot.low { border: 1.5px solid var(--sub); }
+  .pdot.g-high { background: #ff3b30; box-shadow: 0 0 0 3px rgba(255,59,48,.2); }
+  .pdot.g-mid { background: #ffcc00; box-shadow: 0 0 0 3px rgba(255,204,0,.25); }
+  .pdot.g-low { background: #8e8e93; box-shadow: 0 0 0 3px rgba(142,142,147,.2); }
+  .pdot.i-high { background: #c9b3f7; box-shadow: 0 0 0 3px rgba(201,179,247,.25); }
+  .pdot.i-mid { background: #b5ecc4; box-shadow: 0 0 0 3px rgba(181,236,196,.25); }
+  .pdot.i-low { background: #d1d1d6; box-shadow: 0 0 0 3px rgba(209,209,214,.3); }
+  .seg {
+    position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px;
+  }
+  .seg button {
+    flex: 1; position: relative; z-index: 1; border: none; background: transparent;
+    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer;
+    transition: color .3s;
+  }
+  .seg button.on { color: var(--text); }
+  .prio-seg { margin: 0 0 10px; }
+  .prio-seg button.on { background: var(--card); box-shadow: 0 2px 8px rgba(0,0,0,.1); border-radius: 11px; }
+
+  /* ---------- Цели: кольцо ---------- */
   .ring { width: 56px; height: 56px; flex-shrink: 0; position: relative; }
   .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .ring circle { fill: none; stroke-width: 5; stroke-linecap: round; }
@@ -142,18 +186,10 @@
     position: absolute; inset: 0; display: grid; place-items: center;
     font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
   }
-  .step {
-    border: none; background: var(--fill); color: var(--text); font: inherit;
-    font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 12px; cursor: pointer;
-    transition: transform .25s var(--spring);
-  }
-  .step:active { transform: scale(.88); }
   .goal-actions { display: flex; align-items: center; gap: 6px; }
 
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-  .stat {
-    background: var(--card); border-radius: 20px; padding: 16px 10px; text-align: center; box-shadow: var(--shadow);
-  }
+  .stat { background: var(--card); border-radius: 20px; padding: 16px 10px; text-align: center; box-shadow: var(--shadow); }
   .stat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
   .stat span { font-size: 12px; color: var(--sub); font-weight: 500; }
 
@@ -176,35 +212,23 @@
   .day i { font-style: normal; font-size: 13px; font-weight: 700; }
   .day:active { transform: scale(.88); }
   .day.on { background: var(--accent); color: var(--accent-text); }
-  .day.on i::after { content: ""; }
   .day.today { box-shadow: inset 0 0 0 1.5px var(--text); }
   .day.today:not(.on) { color: var(--text); }
-  .day.on.pop { animation: pop .5s var(--spring); }
+  .day.pop { animation: pop .5s var(--spring); }
 
-  /* ---------- Сегмент ---------- */
-  .seg { position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px; }
-  .seg .thumb {
+  /* ---------- Задачи: сегмент ---------- */
+  .task-seg { position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px; }
+  .task-seg .thumb {
     position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px);
     background: var(--card); border-radius: 11px; box-shadow: 0 2px 10px rgba(0,0,0,.1);
     transition: transform .45s var(--ease);
   }
-  .seg.right .thumb { transform: translateX(100%); }
-  .seg button {
+  .task-seg.right .thumb { transform: translateX(100%); }
+  .task-seg button {
     flex: 1; position: relative; z-index: 1; border: none; background: transparent;
-    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer;
-    transition: color .3s;
+    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer; transition: color .3s;
   }
-  .seg button.on { color: var(--text); }
-
-  /* ---------- Важность идей ---------- */
-  .pdot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-  .pdot.high { background: var(--text); box-shadow: 0 0 0 3px var(--fill); }
-  .pdot.mid { background: var(--sub); }
-  .pdot.low { border: 1.5px solid var(--sub); }
-  .prio-seg button.on { background: var(--card); box-shadow: 0 2px 8px rgba(0,0,0,.1); border-radius: 11px; }
-  .prio-seg { margin: 0 0 10px; }
-  .prio-seg[hidden] { display: none; }
-  .ptag { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .task-seg button.on { color: var(--text); }
 
   /* ---------- Пустое состояние ---------- */
   .empty { text-align: center; color: var(--sub); padding: 52px 24px; font-size: 15px; line-height: 1.4; animation: rise .7s var(--ease) both; }
@@ -242,12 +266,14 @@
     width: 100%; background: var(--card); border-radius: 28px 28px 0 0;
     padding: 12px 20px calc(22px + env(safe-area-inset-bottom));
     transform: translateY(105%); transition: transform .5s var(--ease);
+    max-height: 90vh; overflow-y: auto;
   }
   .sheet-bg.open .sheet { transform: none; }
   .grabber { width: 40px; height: 5px; background: var(--line); border-radius: 3px; margin: 0 auto 16px; }
   .sheet h3 { margin: 0 0 16px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
   .sheet .field { margin-bottom: 10px; background: var(--bg); box-shadow: none; }
   .sheet textarea.field { min-height: 96px; resize: none; font-family: inherit; }
+  .sheet .chips { padding-bottom: 12px; }
   .sheet .actions { display: flex; gap: 10px; margin-top: 8px; }
   .sheet .actions button {
     flex: 1; border: none; border-radius: 16px; padding: 15px; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
@@ -289,7 +315,10 @@
 
 <main>
 
+  <!-- ИДЕИ -->
   <section class="section" id="s-ideas">
+    <div class="chips" id="catChips"></div>
+    <div class="cat-actions" id="catActions"></div>
     <div class="add">
       <input class="field" id="ideaInput" placeholder="Новая идея" maxlength="200">
       <button class="btn-add" data-add="idea" aria-label="Добавить">+</button>
@@ -297,6 +326,7 @@
     <div class="card" id="ideaList"></div>
   </section>
 
+  <!-- ЦЕЛИ -->
   <section class="section" id="s-goals">
     <div class="stats" id="goalStats"></div>
     <div class="add">
@@ -306,12 +336,13 @@
     <div class="card" id="goalList"></div>
   </section>
 
+  <!-- ЗАДАЧИ -->
   <section class="section" id="s-tasks">
     <div class="add">
       <input class="field" id="taskInput" placeholder="Новая задача" maxlength="200">
       <button class="btn-add" data-add="task" aria-label="Добавить">+</button>
     </div>
-    <div class="seg" id="taskSeg">
+    <div class="task-seg" id="taskSeg">
       <div class="thumb"></div>
       <button class="on" data-filter="active">Активные</button>
       <button data-filter="done">Выполненные</button>
@@ -319,6 +350,7 @@
     <div class="card" id="taskList"></div>
   </section>
 
+  <!-- ПРИВЫЧКИ -->
   <section class="section" id="s-habits">
     <div class="add">
       <input class="field" id="habitInput" placeholder="Новая привычка" maxlength="200">
@@ -327,6 +359,7 @@
     <div class="card" id="habitList"></div>
   </section>
 
+  <!-- ЕЩЁ -->
   <section class="section" id="s-settings">
     <div class="card">
       <div class="row" data-export>
@@ -372,6 +405,7 @@
     <div class="grabber"></div>
     <h3>Изменить</h3>
     <input class="field" id="editTitle" maxlength="200">
+    <div class="chips" id="editCat" hidden></div>
     <div class="seg prio-seg" id="editPrio" hidden>
       <button data-prio="high">Важная</button>
       <button data-prio="mid">Средняя</button>
@@ -416,13 +450,14 @@
   }
 
   // ---------- Данные ----------
+  const EMPTY = () => ({ ideas:[], ideaCats:[], goals:[], tasks:[], habits:[] });
   let state = load();
   function load() {
     try {
       const s = JSON.parse(localStorage.getItem(KEY));
-      if (s && typeof s === "object") return { ideas:[], goals:[], tasks:[], habits:[], ...s };
+      if (s && typeof s === "object") return { ...EMPTY(), ...s };
     } catch {}
-    return { ideas:[], goals:[], tasks:[], habits:[] };
+    return EMPTY();
   }
   function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
 
@@ -446,27 +481,62 @@
   }
   document.querySelectorAll(".tab").forEach(b => b.onclick = () => { haptic("soft"); show(b.dataset.tab); });
 
+  // ---------- Категории идей ----------
+  let ideaFilter = "all"; // "all" | "none" | id категории
+  const catById = id => state.ideaCats.find(c => c.id === id);
+
+
+  function renderCats() {
+    const box = document.getElementById("catChips");
+    const chip = (id, label, extra = "") =>
+      `<button class="chip ${ideaFilter === id ? "on" : ""}" data-cat="${id}">${esc(label)}</button>`;
+    let html = chip("all", "Все") + state.ideaCats.map(c => chip(c.id, c.name)).join("");
+    html = `<button class="chip add-cat" data-newcat>＋ Категория</button>` + html;
+    box.innerHTML = html;
+    box.querySelector("[data-newcat]").onclick = () => openNewCat();
+    box.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
+      ideaFilter = b.dataset.cat; haptic("soft"); render(true);
+    });
+    const catActions = document.getElementById("catActions");
+    const activeCat = catById(ideaFilter);
+    catActions.innerHTML = activeCat
+      ? `<button data-delcat="${activeCat.id}">Удалить категорию «${esc(activeCat.name)}»</button>`
+      : "";
+    catActions.querySelectorAll("[data-delcat]").forEach(b => b.onclick = () => {
+      const id = b.dataset.delcat;
+      const cat = catById(id);
+      state.ideas.forEach(i => { if (i.categoryId === id) i.categoryId = null; });
+      state.ideaCats = state.ideaCats.filter(c => c.id !== id);
+      ideaFilter = "all";
+      save(); render(true); notify("warning");
+      toast(`Категория «${cat.name}» удалена`);
+    });
+  }
+
   // ---------- Добавление ----------
   const inputs = { idea:"ideaInput", goal:"goalInput", task:"taskInput", habit:"habitInput" };
   document.querySelectorAll("[data-add]").forEach(btn => btn.onclick = () => add(btn.dataset.add));
   Object.entries(inputs).forEach(([kind, id]) =>
     document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") add(kind); })
   );
+  function shake(el) {
+    el.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}], {duration:300});
+  }
   function add(kind) {
     const el = document.getElementById(inputs[kind]);
     const text = el.value.trim();
-    if (!text) {
-      el.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}], {duration:300});
-      return;
-    }
+    if (!text) return shake(el);
     const item = { id: uid(), title: text, note: "", createdAt: Date.now() };
-    if (kind === "idea")  state.ideas.unshift(item);
+    if (kind === "idea") {
+      const categoryId = catById(ideaFilter) ? ideaFilter : null;
+      state.ideas.unshift({ ...item, categoryId, priority: "low" });
+    }
     if (kind === "goal")  state.goals.unshift({ ...item, progress: 0, priority: "low" });
     if (kind === "task")  state.tasks.unshift({ ...item, done: false, doneAt: null, priority: "low" });
     if (kind === "habit") state.habits.unshift({ ...item, days: [] });
     el.value = "";
     save(); render(true); haptic("medium");
-    toast("Добавлено");
+    toast(kind === "idea" && catById(ideaFilter) ? `Добавлено в «${catById(ideaFilter).name}»` : "Добавлено");
   }
 
   // ---------- Фильтр задач ----------
@@ -480,14 +550,15 @@
 
   // ---------- Приоритеты ----------
   const PRIO_LABELS = {
+    ideas: { high: "Крутые", mid: "Необычные", low: "Обычные" },
     tasks: { high: "Важная", mid: "Средняя", low: "Обычная" },
-    goals: { high: "Крутые", mid: "Необычные", low: "Обычные" }
+    goals: { high: "Важные", mid: "Срочные", low: "Обычные" }
   };
   const PRIO_ORDER = { high: 0, mid: 1, low: 2 };
 
   // ---------- Рендер ----------
   function render(animateIn = false) {
-    renderIdeas(animateIn); renderGoals(animateIn); renderTasks(animateIn); renderHabits(animateIn);
+    renderCats(); renderIdeas(animateIn); renderGoals(animateIn); renderTasks(animateIn); renderHabits(animateIn);
   }
   const emptyHTML = (emoji, text) => `<div class="empty"><span class="emoji">${emoji}</span>${text}</div>`;
   const rowCls = (base, a) => a ? `${base} in` : base;
@@ -506,15 +577,30 @@
 
   function renderIdeas(a) {
     const el = document.getElementById("ideaList");
-    if (!state.ideas.length) return el.innerHTML = emptyHTML("💡", "Запишите первую идею —<br>она не потеряется");
-    el.innerHTML = state.ideas.map((i, n) => `
+    const list = state.ideas.filter(i =>
+      ideaFilter === "all" ? true :
+      ideaFilter === "none" ? !catById(i.categoryId) :
+      i.categoryId === ideaFilter
+    );
+    if (!list.length) {
+      const msg = ideaFilter === "all" ? "Запишите первую идею —<br>она не потеряется"
+        : catById(ideaFilter) ? `В категории «${esc(catById(ideaFilter).name)}» пока пусто`
+        : "Идей без категории нет";
+      return el.innerHTML = emptyHTML("💡", msg);
+    }
+    const sorted = [...list].sort((x, y) => PRIO_ORDER[x.priority || "low"] - PRIO_ORDER[y.priority || "low"]);
+    el.innerHTML = sorted.map((i, n) => {
+      const cat = catById(i.categoryId);
+      const meta = [cat && ideaFilter === "all" ? cat.name : "", i.note ? esc(i.note).slice(0,90) : ""].filter(Boolean).join(" · ");
+      return `
       <div class="${rowCls("row", a)}" ${delay(n)} data-open="ideas" data-id="${i.id}">
         <div class="grow">
-          <div class="title">${esc(i.title)}</div>
-          ${i.note ? `<div class="meta">${esc(i.note).slice(0,90)}</div>` : ""}
+          <div class="title"><span class="pdot i-${i.priority || "low"}"></span>${esc(i.title)}</div>
+          ${meta ? `<div class="meta">${meta}</div>` : ""}
         </div>
         ${xBtn(i.id)}
-      </div>`).join("");
+      </div>`;
+    }).join("");
     bindCommon(el, "ideas");
   }
 
@@ -531,7 +617,7 @@
 
     const R = 22, C = 2 * Math.PI * R;
     el.innerHTML = state.goals.map((g, n) => `
-      <div class="${rowCls("row goal", a)}" ${delay(n)} data-open="goals" data-id="${g.id}">
+      <div class="${rowCls("row", a)}" ${delay(n)} data-open="goals" data-id="${g.id}">
         <div class="ring">
           <svg viewBox="0 0 56 56">
             <circle class="bg" cx="28" cy="28" r="${R}"/>
@@ -540,12 +626,10 @@
           <span>${g.progress}%</span>
         </div>
         <div class="grow">
-          <div class="title ${g.progress >= 100 ? "done" : ""}"><span class="ptag pdot ${g.priority || "low"}"></span>${esc(g.title)}</div>
+          <div class="title ${g.progress >= 100 ? "done" : ""}"><span class="pdot g-${g.priority || "low"}"></span>${esc(g.title)}</div>
           ${g.note ? `<div class="meta">${esc(g.note).slice(0,90)}</div>` : ""}
         </div>
-        <div class="goal-actions">
-          ${xBtn(g.id)}
-        </div>
+        <div class="goal-actions">${xBtn(g.id)}</div>
       </div>`).join("");
     bindCommon(el, "goals");
   }
@@ -563,7 +647,7 @@
           <svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7"/></svg>
         </button>
         <div class="grow">
-          <div class="title ${t.done ? "done" : ""}"><span class="ptag pdot ${t.priority || "low"}"></span>${esc(t.title)}</div>
+          <div class="title ${t.done ? "done" : ""}"><span class="pdot ${t.priority || "low"}"></span>${esc(t.title)}</div>
           ${t.note ? `<div class="meta">${esc(t.note).slice(0,90)}</div>` : ""}
         </div>
         ${xBtn(t.id)}
@@ -656,44 +740,101 @@
 
   // ---------- Редактирование ----------
   let editing = null;
+  let editPriority = "low";
+  let editCategory = null;
+
+  function setPrioUI(p) {
+    editPriority = p;
+    document.querySelectorAll("#editPrio button").forEach(b => b.classList.toggle("on", b.dataset.prio === p));
+  }
+  function setCatUI(id) {
+    editCategory = id;
+    document.querySelectorAll("#editCat [data-ecat]").forEach(b => b.classList.toggle("on", b.dataset.ecat === (id ?? "none")));
+  }
+  document.querySelectorAll("#editPrio button").forEach(b => b.onclick = () => { haptic("soft"); setPrioUI(b.dataset.prio); });
+
   function openEdit(list, id) {
     const item = state[list].find(x => x.id === id);
     if (!item) return;
     editing = { list, id };
+    document.querySelector(".sheet h3").textContent = "Изменить";
+    document.getElementById("editTitle").placeholder = "Название";
     document.getElementById("editTitle").value = item.title;
+    document.getElementById("editNote").hidden = false;
+    document.getElementById("editDelete").hidden = false;
     document.getElementById("editNote").value = item.note || "";
-    const prioEl = document.getElementById("editPrio");
+
+    // Категории (только для идей)
+    const catBox = document.getElementById("editCat");
+    if (list === "ideas") {
+      catBox.hidden = false;
+      catBox.innerHTML =
+        `<button class="chip" data-ecat="none">Без категории</button>` +
+        state.ideaCats.map(c => `<button class="chip" data-ecat="${c.id}">${esc(c.name)}</button>`).join("");
+      catBox.querySelectorAll("[data-ecat]").forEach(b => b.onclick = () => {
+        haptic("soft");
+        setCatUI(b.dataset.ecat === "none" ? null : b.dataset.ecat);
+      });
+      setCatUI(catById(item.categoryId) ? item.categoryId : null);
+    } else {
+      catBox.hidden = true;
+    }
+
+    // Приоритеты (задачи и цели)
     const labels = PRIO_LABELS[list];
+    const prioEl = document.getElementById("editPrio");
     prioEl.hidden = !labels;
     if (labels) {
       prioEl.querySelectorAll("button").forEach(b => b.textContent = labels[b.dataset.prio]);
       setPrioUI(item.priority || "low");
     }
+
+    // Прогресс (цели)
     const pInput = document.getElementById("editProgress");
     pInput.hidden = list !== "goals";
     pInput.value = list === "goals" ? item.progress : "";
+
     document.getElementById("sheetBg").classList.add("open");
     haptic("soft");
+  }
+  function openNewCat() {
+    haptic("soft");
+    editing = { list: "newcat" };
+    document.querySelector(".sheet h3").textContent = "Новая категория";
+    const t = document.getElementById("editTitle");
+    t.value = ""; t.placeholder = "Название категории";
+    document.getElementById("editNote").hidden = true;
+    document.getElementById("editCat").hidden = true;
+    document.getElementById("editPrio").hidden = true;
+    document.getElementById("editProgress").hidden = true;
+    document.getElementById("editDelete").hidden = true;
+    document.getElementById("sheetBg").classList.add("open");
+    setTimeout(() => t.focus(), 350);
   }
   function closeEdit() {
     document.getElementById("sheetBg").classList.remove("open");
     editing = null;
   }
-  let editPriority = "low";
-  function setPrioUI(p) {
-    editPriority = p;
-    document.querySelectorAll("#editPrio button").forEach(b => b.classList.toggle("on", b.dataset.prio === p));
-  }
-  document.querySelectorAll("#editPrio button").forEach(b => b.onclick = () => { haptic("soft"); setPrioUI(b.dataset.prio); });
   document.getElementById("editCancel").onclick = closeEdit;
   document.getElementById("sheetBg").onclick = e => { if (e.target.id === "sheetBg") closeEdit(); };
   document.getElementById("editSave").onclick = () => {
     if (!editing) return;
+    if (editing.list === "newcat") {
+      const input = document.getElementById("editTitle");
+      const name = input.value.trim();
+      if (!name) return shake(input);
+      const cat = { id: uid(), name };
+      state.ideaCats.push(cat);
+      ideaFilter = cat.id;
+      closeEdit(); save(); render(true); haptic("medium"); toast("Категория создана");
+      return;
+    }
     const item = state[editing.list].find(x => x.id === editing.id);
     const title = document.getElementById("editTitle").value.trim();
     if (!title) return;
     item.title = title;
     item.note = document.getElementById("editNote").value;
+    if (editing.list === "ideas") item.categoryId = editCategory;
     if (PRIO_LABELS[editing.list]) item.priority = editPriority;
     let achieved = false;
     if (editing.list === "goals") {
@@ -728,12 +869,12 @@
     const f = e.target.files[0]; if (!f) return;
     try {
       const data = JSON.parse(await f.text());
-      state = { ideas:[], goals:[], tasks:[], habits:[], ...data };
+      state = { ...EMPTY(), ...data };
       save(); render(true); toast("Данные импортированы");
     } catch { toast("Не удалось прочитать файл"); }
   };
   document.querySelector("[data-reset]").onclick = () => {
-    const go = () => { state = { ideas:[], goals:[], tasks:[], habits:[] }; save(); render(true); toast("Всё очищено"); };
+    const go = () => { state = EMPTY(); ideaFilter = "all"; save(); render(true); toast("Всё очищено"); };
     if (tg?.showConfirm) tg.showConfirm("Удалить все данные? Это необратимо.", ok => ok && go());
     else if (confirm("Удалить все данные? Это необратимо.")) go();
   };
