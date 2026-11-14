@@ -168,6 +168,9 @@
   .pdot.g-high { background: #ff3b30; box-shadow: 0 0 0 3px rgba(255,59,48,.2); }
   .pdot.g-mid { background: #ffcc00; box-shadow: 0 0 0 3px rgba(255,204,0,.25); }
   .pdot.g-low { background: #8e8e93; box-shadow: 0 0 0 3px rgba(142,142,147,.2); }
+  .pdot.s-high { background: #ff3b30; box-shadow: 0 0 0 3px rgba(255,59,48,.2); }
+  .pdot.s-mid { background: #34c759; box-shadow: 0 0 0 3px rgba(52,199,89,.2); }
+  .pdot.s-low { background: #8e8e93; box-shadow: 0 0 0 3px rgba(142,142,147,.2); }
 
   .seg {
     position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px;
@@ -266,15 +269,16 @@
   /* ---------- Таб-бар ---------- */
   .tabbar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-    display: flex; justify-content: space-around; padding: 8px 4px calc(10px + env(safe-area-inset-bottom));
+    display: flex; justify-content: space-around; padding: 8px 2px calc(10px + env(safe-area-inset-bottom));
     background: var(--glass);
     backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-top: .5px solid var(--line);
   }
   .tab {
     flex: 1; background: none; border: none; color: var(--sub); font: inherit;
-    font-size: 10px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 9.5px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px;
     padding: 6px 0; cursor: pointer; transition: color .3s; min-width: 0;
+    white-space: nowrap;
   }
   .tab svg {
     width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8;
@@ -354,27 +358,6 @@
     <div class="card" id="todayHabits"></div>
   </section>
 
-  <!-- ИДЕИ -->
-  <section class="section" id="s-ideas">
-    <div class="chips" id="catChips"></div>
-    <div class="cat-actions" id="catActions"></div>
-    <div class="add">
-      <input class="field" id="ideaInput" placeholder="Новая идея" maxlength="200">
-      <button class="btn-add" data-add="idea" aria-label="Добавить">+</button>
-    </div>
-    <div class="card" id="ideaList"></div>
-  </section>
-
-  <!-- ЦЕЛИ -->
-  <section class="section" id="s-goals">
-    <div class="stats" id="goalStats"></div>
-    <div class="add">
-      <input class="field" id="goalInput" placeholder="Новая цель" maxlength="200">
-      <button class="btn-add" data-add="goal" aria-label="Добавить">+</button>
-    </div>
-    <div class="card" id="goalList"></div>
-  </section>
-
   <!-- ЗАДАЧИ -->
   <section class="section" id="s-tasks">
     <div class="add">
@@ -396,6 +379,38 @@
       <button class="btn-add" data-add="habit" aria-label="Добавить">+</button>
     </div>
     <div class="card" id="habitList"></div>
+  </section>
+
+  <!-- ПОКУПКИ -->
+  <section class="section" id="s-shop">
+    <div class="chips" id="shopChips"></div>
+    <div class="cat-actions" id="shopActions"></div>
+    <div class="add">
+      <input class="field" id="shopInput" placeholder="Что купить" maxlength="200">
+      <button class="btn-add" data-add="shop" aria-label="Добавить">+</button>
+    </div>
+    <div class="card" id="shopList"></div>
+  </section>
+
+  <!-- ЦЕЛИ -->
+  <section class="section" id="s-goals">
+    <div class="stats" id="goalStats"></div>
+    <div class="add">
+      <input class="field" id="goalInput" placeholder="Новая цель" maxlength="200">
+      <button class="btn-add" data-add="goal" aria-label="Добавить">+</button>
+    </div>
+    <div class="card" id="goalList"></div>
+  </section>
+
+  <!-- ИДЕИ -->
+  <section class="section" id="s-ideas">
+    <div class="chips" id="ideasChips"></div>
+    <div class="cat-actions" id="ideasActions"></div>
+    <div class="add">
+      <input class="field" id="ideaInput" placeholder="Новая идея" maxlength="200">
+      <button class="btn-add" data-add="idea" aria-label="Добавить">+</button>
+    </div>
+    <div class="card" id="ideaList"></div>
   </section>
 
   <!-- ЕЩЁ -->
@@ -425,17 +440,20 @@
   <button class="tab on" data-tab="today">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Сегодня
   </button>
-  <button class="tab" data-tab="ideas">
-    <svg viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>Идеи
-  </button>
-  <button class="tab" data-tab="goals">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Цели
-  </button>
   <button class="tab" data-tab="tasks">
     <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/><path d="M8 12l3 3 5-6"/></svg>Задачи
   </button>
   <button class="tab" data-tab="habits">
     <svg viewBox="0 0 24 24"><path d="M4 12h4l2-6 4 12 2-6h4"/></svg>Привычки
+  </button>
+  <button class="tab" data-tab="shop">
+    <svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>Покупки
+  </button>
+  <button class="tab" data-tab="goals">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Цели
+  </button>
+  <button class="tab" data-tab="ideas">
+    <svg viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>Идеи
   </button>
   <button class="tab" data-tab="settings">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Ещё
@@ -508,7 +526,7 @@
   }
 
   // ---------- Данные ----------
-  const EMPTY = () => ({ ideas:[], ideaCats:[], goals:[], tasks:[], habits:[] });
+  const EMPTY = () => ({ ideas:[], ideaCats:[], shop:[], shopCats:[], goals:[], tasks:[], habits:[] });
 
   function migrate(s) {
     s = { ...EMPTY(), ...s };
@@ -528,6 +546,7 @@
     });
     s.tasks.forEach(t => { t.priority ||= "low"; });
     s.ideas.forEach(i => { i.priority ||= "low"; });
+    s.shop.forEach(i => { i.priority ||= "low"; i.done ||= false; });
     return s;
   }
   let state = load();
@@ -544,10 +563,17 @@
   const PRIO_LABELS = {
     ideas: { high: "Крутые", mid: "Необычные", low: "Обычные" },
     tasks: { high: "Важная", mid: "Средняя", low: "Обычная" },
-    goals: { high: "Важные", mid: "Срочные", low: "Обычные" }
+    goals: { high: "Важные", mid: "Срочные", low: "Обычные" },
+    shop:  { high: "Срочно", mid: "Не забыть", low: "Надо" }
   };
   const PRIO_ORDER = { high: 0, mid: 1, low: 2 };
   const byPrio = (x, y) => PRIO_ORDER[x.priority || "low"] - PRIO_ORDER[y.priority || "low"];
+
+  // Категории: у идей и покупок свои списки
+  const CAT_KEY = { ideas: "ideaCats", shop: "shopCats" };
+  const catsOf = kind => state[CAT_KEY[kind]];
+  const catById = (kind, id) => catsOf(kind).find(c => c.id === id);
+  const filters = { ideas: "all", shop: "all" };
 
   function goalProgress(g) {
     if (g.subtasks.length) {
@@ -597,7 +623,7 @@
     new Date().toLocaleDateString("ru-RU", { weekday:"long", day:"numeric", month:"long" });
 
   // ---------- Навигация ----------
-  const titles = { today:"Сегодня", ideas:"Идеи", goals:"Цели", tasks:"Задачи", habits:"Привычки", settings:"Ещё" };
+  const titles = { today:"Сегодня", tasks:"Задачи", habits:"Привычки", shop:"Покупки", goals:"Цели", ideas:"Идеи", settings:"Ещё" };
   let current = null;
   function show(tab) {
     if (tab === current) return;
@@ -612,40 +638,36 @@
   }
   document.querySelectorAll(".tab").forEach(b => b.onclick = () => { haptic("soft"); show(b.dataset.tab); });
 
-  // ---------- Категории идей ----------
-  let ideaFilter = "all"; // "all" | id категории
-  const catById = id => state.ideaCats.find(c => c.id === id);
-
-  function renderCats() {
-    const box = document.getElementById("catChips");
+  // ---------- Категории (идеи и покупки) ----------
+  function renderCatsFor(kind) {
+    const box = document.getElementById(kind + "Chips");
+    const actions = document.getElementById(kind + "Actions");
+    const f = filters[kind];
     const chip = (id, label) =>
-      `<button class="chip ${ideaFilter === id ? "on" : ""}" data-cat="${id}">${esc(label)}</button>`;
-    let html = `<button class="chip add-cat" data-newcat>＋ Категория</button>`
-      + chip("all", "Все") + state.ideaCats.map(c => chip(c.id, c.name)).join("");
-    box.innerHTML = html;
-    box.querySelector("[data-newcat]").onclick = () => openNewCat();
+      `<button class="chip ${f === id ? "on" : ""}" data-cat="${id}">${esc(label)}</button>`;
+    box.innerHTML = `<button class="chip" data-newcat="${kind}">＋ Категория</button>`
+      + chip("all", "Все") + catsOf(kind).map(c => chip(c.id, c.name)).join("");
+    box.querySelector("[data-newcat]").onclick = () => openNewCat(kind);
     box.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
-      ideaFilter = b.dataset.cat; haptic("soft"); render(true);
+      filters[kind] = b.dataset.cat; haptic("soft"); render(true);
     });
 
-    const catActions = document.getElementById("catActions");
-    const activeCat = catById(ideaFilter);
-    catActions.innerHTML = activeCat
-      ? `<button data-delcat="${activeCat.id}">Удалить категорию «${esc(activeCat.name)}»</button>`
+    const active = catById(kind, f);
+    actions.innerHTML = active
+      ? `<button data-delcat="${active.id}">Удалить категорию «${esc(active.name)}»</button>`
       : "";
-    catActions.querySelectorAll("[data-delcat]").forEach(b => b.onclick = () => {
-      const id = b.dataset.delcat;
-      const cat = catById(id);
-      state.ideas.forEach(i => { if (i.categoryId === id) i.categoryId = null; });
-      state.ideaCats = state.ideaCats.filter(c => c.id !== id);
-      ideaFilter = "all";
+    actions.querySelectorAll("[data-delcat]").forEach(b => b.onclick = () => {
+      const cat = catById(kind, b.dataset.delcat);
+      state[kind].forEach(i => { if (i.categoryId === cat.id) i.categoryId = null; });
+      state[CAT_KEY[kind]] = catsOf(kind).filter(c => c.id !== cat.id);
+      filters[kind] = "all";
       save(); render(true); notify("warning");
       toast(`Категория «${cat.name}» удалена`);
     });
   }
 
   // ---------- Добавление ----------
-  const inputs = { idea:"ideaInput", goal:"goalInput", task:"taskInput", habit:"habitInput" };
+  const inputs = { idea:"ideaInput", shop:"shopInput", goal:"goalInput", task:"taskInput", habit:"habitInput" };
   document.querySelectorAll("[data-add]").forEach(btn => btn.onclick = () => add(btn.dataset.add));
   Object.entries(inputs).forEach(([kind, id]) =>
     document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") add(kind); })
@@ -655,9 +677,12 @@
     const text = el.value.trim();
     if (!text) return shake(el);
     const item = { id: uid(), title: text, note: "", createdAt: Date.now() };
-    if (kind === "idea") {
-      const categoryId = catById(ideaFilter) ? ideaFilter : null;
-      state.ideas.unshift({ ...item, categoryId, priority: "low" });
+    let msg = "Добавлено";
+    if (kind === "idea" || kind === "shop") {
+      const cat = catById(kind, filters[kind]);
+      const categoryId = cat ? cat.id : null;
+      state[kind].unshift({ ...item, categoryId, priority: "low", done: false });
+      if (cat) msg = `Добавлено в «${cat.name}»`;
     }
     if (kind === "goal") {
       state.goals.unshift({ ...item, progress: 0, priority: "low", subtasks: [], history: [{ d: todayKey(), p: 0 }] });
@@ -666,7 +691,7 @@
     if (kind === "habit") state.habits.unshift({ ...item, target: 1, counts: {} });
     el.value = "";
     save(); render(true); haptic("medium");
-    toast(kind === "idea" && catById(ideaFilter) ? `Добавлено в «${catById(ideaFilter).name}»` : "Добавлено");
+    toast(msg);
   }
 
   // ---------- Фильтр задач ----------
@@ -680,8 +705,10 @@
 
   // ---------- Рендер: общие куски ----------
   function render(animateIn = false) {
-    renderToday(animateIn); renderCats(); renderIdeas(animateIn);
-    renderGoals(animateIn); renderTasks(animateIn); renderHabits(animateIn);
+    renderToday(animateIn); renderTasks(animateIn); renderHabits(animateIn);
+    renderCatsFor("shop"); renderShop(animateIn);
+    renderGoals(animateIn);
+    renderCatsFor("ideas"); renderIdeas(animateIn);
   }
   const emptyHTML = (emoji, text, compact) =>
     `<div class="empty ${compact ? "compact" : ""}"><span class="emoji">${emoji}</span>${text}</div>`;
@@ -797,20 +824,56 @@
     bindCommon(habitBox, "habits");
   }
 
+  // ---------- Покупки ----------
+  function renderShop(a) {
+    const el = document.getElementById("shopList");
+    const f = filters.shop;
+    const list = state.shop
+      .filter(i => f === "all" || i.categoryId === f)
+      .sort((x, y) => (x.done - y.done) || byPrio(x, y));
+    if (!list.length) {
+      return el.innerHTML = emptyHTML("🛒", f === "all"
+        ? "Добавьте первую покупку"
+        : `В категории «${esc(catById("shop", f).name)}» пока пусто`);
+    }
+    el.innerHTML = list.map((i, n) => {
+      const cat = catById("shop", i.categoryId);
+      const meta = cat && f === "all" ? `<div class="meta">${esc(cat.name)}</div>` : "";
+      return `
+      <div class="${rowCls("row", a)}" ${delay(n)} data-open="shop" data-id="${i.id}">
+        <button class="check ${i.done ? "on" : ""}" data-sbuy="${i.id}" aria-label="Куплено">
+          <svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7"/></svg>
+        </button>
+        <div class="grow">
+          <div class="title ${i.done ? "done" : ""}"><span class="pdot s-${i.priority || "low"}"></span>${esc(i.title)}</div>
+          ${meta}
+        </div>
+        ${xBtn(i.id)}
+      </div>`;
+    }).join("");
+    el.querySelectorAll("[data-sbuy]").forEach(b => b.onclick = e => {
+      e.stopPropagation();
+      const i = state.shop.find(x => x.id === b.dataset.sbuy);
+      i.done = !i.done; save(); haptic("soft"); render(false);
+    });
+    bindCommon(el, "shop");
+  }
+
   // ---------- Идеи ----------
   function renderIdeas(a) {
     const el = document.getElementById("ideaList");
+    const f = filters.ideas;
     const list = state.ideas
-      .filter(i => ideaFilter === "all" ? true : i.categoryId === ideaFilter)
+      .filter(i => f === "all" || i.categoryId === f)
       .sort(byPrio);
     if (!list.length) {
-      const msg = ideaFilter === "all" ? "Запишите первую идею —<br>она не потеряется"
-        : `В категории «${esc(catById(ideaFilter).name)}» пока пусто`;
+      const msg = f === "all" ? "Запишите первую идею —<br>она не потеряется"
+        : `В категории «${esc(catById("ideas", f).name)}» пока пусто`;
       return el.innerHTML = emptyHTML("💡", msg);
     }
     el.innerHTML = list.map((i, n) => {
-      const cat = catById(i.categoryId);
-      const meta = [cat && ideaFilter === "all" ? cat.name : "", i.note ? esc(i.note).slice(0,90) : ""].filter(Boolean).join(" · ");
+      const cat = catById("ideas", i.categoryId);
+      const meta = [cat && f === "all" ? cat.name : "", i.note ? esc(i.note).slice(0,90) : ""].filter(Boolean).join(" · ");
       return `
       <div class="${rowCls("row", a)}" ${delay(n)} data-open="ideas" data-id="${i.id}">
         <div class="grow">
@@ -922,6 +985,7 @@
   document.querySelectorAll("#editPrio button").forEach(b => b.onclick = () => { haptic("soft"); setPrioUI(b.dataset.prio); });
 
   function chartSVG(history) {
+    if (!history.length) return `<div class="meta" style="text-align:center;padding:20px 0">Пока нет записей</div>`;
     const days = lastDays(30);
     const sorted = [...history].sort((a, b) => a.d.localeCompare(b.d));
     const vals = days.map(d => {
@@ -929,7 +993,6 @@
       for (const x of sorted) if (x.d <= d.key) v = x.p;
       return v;
     });
-    if (!sorted.length) return `<div class="meta" style="text-align:center;padding:20px 0">Пока нет записей</div>`;
     const W = 300, H = 120, P = 10;
     const pts = vals.map((v, i) => [i * (W / 29), H - P - (v / 100) * (H - 2 * P)]);
     const line = pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" ");
@@ -1008,23 +1071,23 @@
     document.getElementById("editNote").value = item.note || "";
     document.getElementById("editDelete").hidden = false;
 
-    // Категории (только для идей)
+    // Категории (идеи и покупки)
     const catBox = document.getElementById("editCat");
-    if (list === "ideas") {
+    if (CAT_KEY[list]) {
       catBox.hidden = false;
       catBox.innerHTML =
         `<button class="chip" data-ecat="none">Без категории</button>` +
-        state.ideaCats.map(c => `<button class="chip" data-ecat="${c.id}">${esc(c.name)}</button>`).join("");
+        catsOf(list).map(c => `<button class="chip" data-ecat="${c.id}">${esc(c.name)}</button>`).join("");
       catBox.querySelectorAll("[data-ecat]").forEach(b => b.onclick = () => {
         haptic("soft");
         setCatUI(b.dataset.ecat === "none" ? null : b.dataset.ecat);
       });
-      setCatUI(catById(item.categoryId) ? item.categoryId : null);
+      setCatUI(catById(list, item.categoryId) ? item.categoryId : null);
     } else {
       catBox.hidden = true;
     }
 
-    // Приоритеты (идеи, задачи, цели)
+    // Приоритеты (идеи, покупки, задачи, цели)
     const labels = PRIO_LABELS[list];
     const prioEl = document.getElementById("editPrio");
     prioEl.hidden = !labels;
@@ -1053,9 +1116,9 @@
     haptic("soft");
   }
 
-  function openNewCat() {
+  function openNewCat(kind) {
     haptic("soft");
-    editing = { list: "newcat" };
+    editing = { list: "newcat", kind };
     document.querySelector(".sheet h3").textContent = "Новая категория";
     const t = document.getElementById("editTitle");
     t.value = ""; t.placeholder = "Название категории";
@@ -1078,8 +1141,8 @@
       const name = input.value.trim();
       if (!name) return shake(input);
       const cat = { id: uid(), name };
-      state.ideaCats.push(cat);
-      ideaFilter = cat.id;
+      catsOf(editing.kind).push(cat);
+      filters[editing.kind] = cat.id;
       closeEdit(); save(); render(true); haptic("medium"); toast("Категория создана");
       return;
     }
@@ -1088,7 +1151,7 @@
     if (!title) return shake(document.getElementById("editTitle"));
     item.title = title;
     item.note = document.getElementById("editNote").value;
-    if (editing.list === "ideas") item.categoryId = editCategory;
+    if (CAT_KEY[editing.list]) item.categoryId = editCategory;
     if (PRIO_LABELS[editing.list]) item.priority = editPriority;
 
     let achieved = false;
@@ -1134,7 +1197,10 @@
     } catch { toast("Не удалось прочитать файл"); }
   };
   document.querySelector("[data-reset]").onclick = () => {
-    const go = () => { state = EMPTY(); ideaFilter = "all"; save(); render(true); toast("Всё очищено"); };
+    const go = () => {
+      state = EMPTY(); filters.ideas = "all"; filters.shop = "all";
+      save(); render(true); toast("Всё очищено");
+    };
     if (tg?.showConfirm) tg.showConfirm("Удалить все данные? Это необратимо.", ok => ok && go());
     else if (confirm("Удалить все данные? Это необратимо.")) go();
   };
