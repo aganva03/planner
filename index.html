@@ -92,6 +92,7 @@
   .chip.on { background: var(--accent); color: var(--accent-text); }
   .cat-actions { display: flex; justify-content: flex-end; gap: 4px; margin: -8px 0 8px; }
   .cat-actions:empty { display: none; }
+  .chip.dragging { transform: scale(1.08); opacity: .85; box-shadow: 0 8px 20px rgba(0,0,0,.18); }
   .cat-actions button {
     background: none; border: none; color: var(--accent); font: inherit;
     font-size: 14px; font-weight: 600; padding: 6px 8px; cursor: pointer;
@@ -678,17 +679,80 @@
   document.querySelectorAll(".tab").forEach(b => b.onclick = () => { haptic("soft"); show(b.dataset.tab); });
 
   // ---------- Категории ----------
+  // Порядок категорий хранится на каждом телефоне отдельно
+  const orderKey = kind => "planner.order." + kind;
+  function getOrder(kind) {
+    try { return JSON.parse(localStorage.getItem(orderKey(kind))) || []; } catch { return []; }
+  }
+  function setOrder(kind, ids) { localStorage.setItem(orderKey(kind), JSON.stringify(ids)); }
+  function sortCats(kind, cats) {
+    const o = getOrder(kind);
+    const rank = id => { const i = o.indexOf(id); return i < 0 ? 1e9 : i; };
+    return [...cats].sort((a, b) => rank(a.id) - rank(b.id));
+  }
+
+  let suppressClick = false;
+  // Долгое нажатие на категорию и перетаскивание влево-вправо
+  function enableReorder(box, kind) {
+    const chips = [...box.querySelectorAll("[data-cat]")].filter(c => c.dataset.cat !== "all");
+    chips.forEach(chip => {
+      let timer = null, startX = 0, dragging = false, pid = null;
+      chip.addEventListener("pointerdown", e => {
+        startX = e.clientX; pid = e.pointerId; dragging = false;
+        timer = setTimeout(() => {
+          dragging = true;
+          chip.setPointerCapture(pid);
+          chip.classList.add("dragging");
+          haptic("medium");
+        }, 350);
+      });
+      chip.addEventListener("pointermove", e => {
+        if (!dragging) {
+          if (Math.abs(e.clientX - startX) > 10) clearTimeout(timer);
+          return;
+        }
+        const siblings = [...box.querySelectorAll("[data-cat]")]
+          .filter(c => c !== chip && c.dataset.cat !== "all");
+        const target = siblings.find(s => {
+          const r = s.getBoundingClientRect();
+          return e.clientX < r.left + r.width / 2;
+        });
+        if (target) {
+          if (chip.nextElementSibling !== target) box.insertBefore(chip, target);
+        } else if (siblings.length) {
+          const last = siblings[siblings.length - 1];
+          if (last.nextElementSibling !== chip) last.after(chip);
+        }
+      });
+      const end = () => {
+        clearTimeout(timer);
+        if (!dragging) return;
+        dragging = false;
+        chip.classList.remove("dragging");
+        const ids = [...box.querySelectorAll("[data-cat]")].map(c => c.dataset.cat).filter(id => id !== "all");
+        setOrder(kind, ids);
+        suppressClick = true;
+        renderCatsFor(kind);
+        haptic("light");
+      };
+      chip.addEventListener("pointerup", end);
+      chip.addEventListener("pointercancel", end);
+    });
+  }
+
   function renderCatsFor(kind) {
     const box = document.getElementById(kind + "Chips");
     const actions = document.getElementById(kind + "Actions");
     const f = filters[kind];
     const chip = (id, label) => `<button class="chip ${f === id ? "on" : ""}" data-cat="${id}">${esc(label)}</button>`;
     box.innerHTML = `<button class="chip" data-newcat="${kind}">＋ Категория</button>`
-      + chip("all", "Все") + catsOf(kind).map(c => chip(c.id, c.name)).join("");
+      + chip("all", "Все") + sortCats(kind, catsOf(kind)).map(c => chip(c.id, c.name)).join("");
     box.querySelector("[data-newcat]").onclick = () => openNewCat(kind);
     box.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
+      if (suppressClick) { suppressClick = false; return; }
       filters[kind] = b.dataset.cat; haptic("soft"); render(true);
     });
+    enableReorder(box, kind);
 
     const active = catById(kind, f);
     if (!active) { actions.innerHTML = ""; return; }
@@ -736,7 +800,7 @@
     if (error || !code) return toast("Не получилось создать код");
     const cat = remote.cats[currentKindOf(catId)]?.find(c => c.id === catId);
     if (cat) cat.inviteCode = code;
-    toast(`Код приглашения: <b>${esc(code)}</b>`, 8000);
+    toast(`Код приглашения: <b>${esc(code)}</b>`, 60000);
     haptic("medium");
   }
   function currentKindOf(catId) {
