@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Планер</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #f2f2f4;
@@ -44,22 +45,16 @@
   }
   body { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
 
-  /* ---------- Шапка ---------- */
   header {
     padding: 28px 24px 12px; position: sticky; top: 0; z-index: 5;
     background: var(--glass);
     backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
   }
   .date { font-size: 13px; color: var(--sub); font-weight: 600; letter-spacing: .02em; }
-  h1 {
-    font-size: 36px; font-weight: 800; letter-spacing: -.035em; margin: 2px 0 0;
-    animation: slideIn .6s var(--ease) both;
-  }
+  h1 { font-size: 36px; font-weight: 800; letter-spacing: -.035em; margin: 2px 0 0; animation: slideIn .6s var(--ease) both; }
   @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
 
   main { padding: 8px 16px 0; }
-
-  /* ---------- Секции ---------- */
   .section { display: none; }
   .section.active { display: block; }
   .section.active > * { animation: rise .6s var(--ease) both; }
@@ -67,12 +62,8 @@
   .section.active > *:nth-child(3) { animation-delay: .12s; }
   @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
-  .sec-label {
-    font-size: 13px; color: var(--sub); font-weight: 600; text-transform: uppercase;
-    letter-spacing: .04em; margin: 6px 4px 8px;
-  }
+  .sec-label { font-size: 13px; color: var(--sub); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin: 6px 4px 8px; }
 
-  /* ---------- Ввод ---------- */
   .add { display: flex; gap: 10px; margin: 4px 0 16px; }
   .field {
     flex: 1; min-width: 0; font: inherit; font-size: 16px; color: var(--text);
@@ -85,39 +76,32 @@
   .btn-add {
     width: 54px; height: 54px; flex-shrink: 0; border-radius: 18px; border: none;
     background: var(--accent); color: var(--accent-text); font-size: 26px; font-weight: 300;
-    cursor: pointer; display: grid; place-items: center; line-height: 1;
-    transition: transform .3s var(--spring);
+    cursor: pointer; display: grid; place-items: center; line-height: 1; transition: transform .3s var(--spring);
   }
-  .btn-add.small { width: 54px; font-size: 18px; font-weight: 700; }
+  .btn-add.small { font-size: 18px; font-weight: 700; }
   .btn-add:active { transform: scale(.88) rotate(90deg); }
 
-  /* ---------- Чипы категорий ---------- */
   .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 14px; scrollbar-width: none; margin: 0 -2px; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     flex-shrink: 0; border: none; background: var(--card); color: var(--sub); font: inherit;
     font-size: 14px; font-weight: 600; padding: 9px 15px; border-radius: 999px; cursor: pointer;
-    box-shadow: var(--shadow); white-space: nowrap;
-    transition: transform .25s var(--spring), background-color .3s, color .3s;
+    box-shadow: var(--shadow); white-space: nowrap; transition: transform .25s var(--spring), background-color .3s, color .3s;
   }
   .chip:active { transform: scale(.92); }
   .chip.on { background: var(--accent); color: var(--accent-text); }
-  .cat-actions { display: flex; justify-content: flex-end; margin: -8px 0 8px; }
+  .cat-actions { display: flex; justify-content: flex-end; gap: 4px; margin: -8px 0 8px; }
   .cat-actions:empty { display: none; }
   .cat-actions button {
-    background: none; border: none; color: var(--danger); font: inherit;
-    font-size: 14px; font-weight: 600; padding: 6px 4px; cursor: pointer;
+    background: none; border: none; color: var(--accent); font: inherit;
+    font-size: 14px; font-weight: 600; padding: 6px 8px; cursor: pointer;
   }
+  .cat-actions button.danger { color: var(--danger); }
 
-  /* ---------- Карточки ---------- */
-  .card {
-    background: var(--card); border-radius: var(--radius);
-    box-shadow: var(--shadow); overflow: hidden; margin-bottom: 14px;
-  }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 14px; }
   .row {
     display: flex; align-items: center; gap: 14px; padding: 18px 16px 18px 18px;
-    border-bottom: 1px solid var(--line); cursor: pointer;
-    transition: background-color .25s, transform .2s var(--ease);
+    border-bottom: 1px solid var(--line); cursor: pointer; transition: background-color .25s, transform .2s var(--ease);
   }
   .row:last-child { border-bottom: none; }
   .row:active { background: var(--fill); }
@@ -139,11 +123,9 @@
   .x-btn:hover { color: var(--danger); }
   .x-btn:active { transform: scale(.8); }
 
-  /* ---------- Чекбокс ---------- */
   .check {
     width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; padding: 0; cursor: pointer;
-    border: 2px solid rgba(127,127,127,.35); background: transparent;
-    display: grid; place-items: center;
+    border: 2px solid rgba(127,127,127,.35); background: transparent; display: grid; place-items: center;
     transition: background-color .3s, border-color .3s, transform .3s var(--spring);
   }
   .check.sm { width: 24px; height: 24px; }
@@ -151,13 +133,12 @@
   .check.on { background: var(--accent); border-color: var(--accent); animation: pop .5s var(--spring); }
   .check svg {
     width: 14px; height: 14px; stroke: var(--accent-text); stroke-width: 2.8; fill: none;
-    stroke-linecap: round; stroke-linejoin: round;
-    stroke-dasharray: 22; stroke-dashoffset: 22; transition: stroke-dashoffset .4s var(--ease) .05s;
+    stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 22; stroke-dashoffset: 22;
+    transition: stroke-dashoffset .4s var(--ease) .05s;
   }
   .check.on svg { stroke-dashoffset: 0; }
   @keyframes pop { 0% { transform: scale(.75); } 60% { transform: scale(1.14); } 100% { transform: scale(1); } }
 
-  /* ---------- Приоритеты ---------- */
   .pdot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; display: inline-block; margin-right: 8px; vertical-align: middle; }
   .pdot.high { background: var(--text); box-shadow: 0 0 0 3px var(--fill); }
   .pdot.mid { background: var(--sub); }
@@ -172,61 +153,56 @@
   .pdot.s-mid { background: #34c759; box-shadow: 0 0 0 3px rgba(52,199,89,.2); }
   .pdot.s-low { background: #8e8e93; box-shadow: 0 0 0 3px rgba(142,142,147,.2); }
 
-  .seg {
-    position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px;
-  }
+  .seg { position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px; }
   .seg button {
     flex: 1; position: relative; z-index: 1; border: none; background: transparent;
-    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer;
-    transition: color .3s;
+    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer; transition: color .3s;
   }
   .seg button.on { color: var(--text); }
   .prio-seg { margin: 0 0 10px; }
   .prio-seg button.on { background: var(--card); box-shadow: 0 2px 8px rgba(0,0,0,.1); border-radius: 11px; }
 
-  /* ---------- Цели ---------- */
+  .task-seg { position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px; }
+  .task-seg .thumb {
+    position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px);
+    background: var(--card); border-radius: 11px; box-shadow: 0 2px 10px rgba(0,0,0,.1); transition: transform .45s var(--ease);
+  }
+  .task-seg.right .thumb { transform: translateX(100%); }
+  .task-seg button {
+    flex: 1; position: relative; z-index: 1; border: none; background: transparent;
+    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer; transition: color .3s;
+  }
+  .task-seg button.on { color: var(--text); }
+
   .ring { width: 56px; height: 56px; flex-shrink: 0; position: relative; }
   .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .ring circle { fill: none; stroke-width: 5; stroke-linecap: round; }
   .ring .bg { stroke: var(--fill); }
   .ring .fg { stroke: var(--accent); transition: stroke-dashoffset .8s var(--ease); }
-  .ring span {
-    position: absolute; inset: 0; display: grid; place-items: center;
-    font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
-  }
+  .ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .goal-actions { display: flex; align-items: center; gap: 6px; }
-
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
   .stat { background: var(--card); border-radius: 20px; padding: 16px 10px; text-align: center; box-shadow: var(--shadow); }
   .stat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
   .stat span { font-size: 12px; color: var(--sub); font-weight: 500; }
 
-  .subs .sub-row {
-    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-    border-bottom: 1px solid var(--line);
-  }
+  .subs .sub-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
   .subs .sub-row:last-child { border-bottom: none; }
   .sub-title { flex: 1; font-size: 15px; font-weight: 500; word-break: break-word; }
   .sub-title.done { color: var(--sub); text-decoration: line-through; }
   .sub-empty { padding: 14px; }
-
   .chart-card { padding: 16px 16px 12px; color: var(--text); }
   .chart { width: 100%; height: auto; display: block; }
   .chart-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--sub); margin-top: 8px; font-variant-numeric: tabular-nums; }
 
-  /* ---------- Привычки ---------- */
   .habit { flex-direction: column; align-items: stretch; gap: 14px; }
   .habit-head { display: flex; align-items: center; gap: 10px; }
   .habit-head .title { flex: 1; }
-  .streak {
-    font-size: 12px; font-weight: 700; color: var(--accent-text); background: var(--accent);
-    padding: 5px 10px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums;
-  }
+  .streak { font-size: 12px; font-weight: 700; color: var(--accent-text); background: var(--accent); padding: 5px 10px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .habit-days { display: flex; gap: 6px; }
   .day {
-    flex: 1; height: 46px; border-radius: 14px; border: none; background: var(--fill);
-    color: var(--sub); cursor: pointer; padding: 0; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 2px;
+    flex: 1; height: 46px; border-radius: 14px; border: none; background: var(--fill); color: var(--sub); cursor: pointer; padding: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     transition: transform .3s var(--spring), background-color .3s, color .3s;
   }
   .day small { font-size: 10px; font-weight: 700; letter-spacing: .02em; }
@@ -236,49 +212,30 @@
   .day.today { box-shadow: inset 0 0 0 1.5px var(--text); }
   .day.today:not(.on) { color: var(--text); }
   .day.pop { animation: pop .5s var(--spring); }
-
   .pill-btn {
-    border: none; background: var(--fill); color: var(--text); font: inherit;
-    font-size: 14px; font-weight: 700; padding: 8px 12px; border-radius: 12px; cursor: pointer;
-    font-variant-numeric: tabular-nums; transition: transform .25s var(--spring), background-color .3s, color .3s;
+    border: none; background: var(--fill); color: var(--text); font: inherit; font-size: 14px; font-weight: 700;
+    padding: 8px 12px; border-radius: 12px; cursor: pointer; font-variant-numeric: tabular-nums;
+    transition: transform .25s var(--spring), background-color .3s, color .3s;
   }
   .pill-btn:active { transform: scale(.88); }
   .pill-btn.on { background: var(--accent); color: var(--accent-text); }
 
-  /* ---------- Задачи: сегмент ---------- */
-  .task-seg { position: relative; display: flex; background: var(--fill); border-radius: 14px; padding: 3px; margin-bottom: 16px; }
-  .task-seg .thumb {
-    position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px);
-    background: var(--card); border-radius: 11px; box-shadow: 0 2px 10px rgba(0,0,0,.1);
-    transition: transform .45s var(--ease);
-  }
-  .task-seg.right .thumb { transform: translateX(100%); }
-  .task-seg button {
-    flex: 1; position: relative; z-index: 1; border: none; background: transparent;
-    padding: 9px; font: inherit; font-size: 14px; font-weight: 600; color: var(--sub); cursor: pointer; transition: color .3s;
-  }
-  .task-seg button.on { color: var(--text); }
-
-  /* ---------- Пустое состояние ---------- */
   .empty { text-align: center; color: var(--sub); padding: 52px 24px; font-size: 15px; line-height: 1.4; animation: rise .7s var(--ease) both; }
   .empty .emoji { font-size: 44px; display: block; margin-bottom: 10px; animation: float 3.2s ease-in-out infinite; }
   .empty.compact { padding: 26px 20px; }
   .empty.compact .emoji { font-size: 30px; margin-bottom: 6px; }
   @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 
-  /* ---------- Таб-бар ---------- */
   .tabbar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
     display: flex; justify-content: space-around; padding: 8px 2px calc(10px + env(safe-area-inset-bottom));
-    background: var(--glass);
-    backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+    background: var(--glass); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-top: .5px solid var(--line);
   }
   .tab {
-    flex: 1; background: none; border: none; color: var(--sub); font: inherit;
-    font-size: 9.5px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 6px 0; cursor: pointer; transition: color .3s; min-width: 0;
-    white-space: nowrap;
+    flex: 1; background: none; border: none; color: var(--sub); font: inherit; font-size: 9.5px; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; cursor: pointer;
+    transition: color .3s; min-width: 0; white-space: nowrap;
   }
   .tab svg {
     width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8;
@@ -288,7 +245,6 @@
   .tab.on svg { transform: translateY(-2px) scale(1.1); }
   .tab:active { transform: scale(.9); }
 
-  /* ---------- Шторка ---------- */
   .sheet-bg {
     position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end;
     background: rgba(0,0,0,0); pointer-events: none; transition: background-color .4s var(--ease);
@@ -297,8 +253,7 @@
   .sheet {
     width: 100%; background: var(--card); border-radius: 28px 28px 0 0;
     padding: 12px 20px calc(22px + env(safe-area-inset-bottom));
-    transform: translateY(105%); transition: transform .5s var(--ease);
-    max-height: 90vh; overflow-y: auto;
+    transform: translateY(105%); transition: transform .5s var(--ease); max-height: 90vh; overflow-y: auto;
   }
   .sheet-bg.open .sheet { transform: none; }
   .grabber { width: 40px; height: 5px; background: var(--line); border-radius: 3px; margin: 0 auto 16px; }
@@ -317,22 +272,27 @@
   .sheet .del { width: 100%; margin-top: 14px; background: none; border: none; color: var(--danger); font: inherit; font-size: 16px; font-weight: 600; padding: 12px; cursor: pointer; }
   .sheet .add { margin: 0 0 4px; }
 
-  /* ---------- Настройки ---------- */
-  .setting-icon {
-    width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
-    background: var(--fill); font-size: 17px; flex-shrink: 0;
-  }
+  .setting-icon { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--fill); font-size: 17px; flex-shrink: 0; }
   .chev { color: var(--sub); font-size: 20px; }
+  .join-box { padding: 14px; display: flex; gap: 10px; }
+  .join-box .field { margin: 0; }
+  .join-box .btn-add { width: auto; padding: 0 18px; font-size: 16px; border-radius: 16px; }
 
   .toast {
-    position: fixed; left: 50%; top: 20px; z-index: 30;
-    transform: translate(-50%, -150%); opacity: 0;
-    background: var(--text); color: var(--bg);
-    padding: 11px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; white-space: nowrap;
-    transition: transform .5s var(--spring), opacity .3s; pointer-events: none;
+    position: fixed; left: 50%; top: 20px; z-index: 30; transform: translate(-50%, -150%); opacity: 0;
+    background: var(--text); color: var(--bg); padding: 11px 20px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    max-width: 92vw; text-align: center; transition: transform .5s var(--spring), opacity .3s; pointer-events: none;
     box-shadow: 0 10px 30px rgba(0,0,0,.2);
   }
-  .toast.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+  .gate {
+    position: fixed; inset: 0; z-index: 40; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center;
+  }
+  .gate .emoji { font-size: 48px; margin-bottom: 14px; }
+  .gate h2 { margin: 0 0 8px; font-size: 22px; font-weight: 800; }
+  .gate p { margin: 0; color: var(--sub); font-size: 15px; line-height: 1.4; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -341,6 +301,12 @@
 </head>
 <body>
 
+<div class="gate" id="gate" hidden>
+  <div class="emoji">🔒</div>
+  <h2 id="gateTitle">Вход</h2>
+  <p id="gateText">Подключаемся…</p>
+</div>
+
 <header>
   <div class="date" id="date"></div>
   <h1 id="title">Сегодня</h1>
@@ -348,7 +314,6 @@
 
 <main>
 
-  <!-- СЕГОДНЯ -->
   <section class="section" id="s-today">
     <div class="sec-label">Главная цель</div>
     <div class="card" id="todayGoal"></div>
@@ -358,8 +323,9 @@
     <div class="card" id="todayHabits"></div>
   </section>
 
-  <!-- ЗАДАЧИ -->
   <section class="section" id="s-tasks">
+    <div class="chips" id="tasksChips"></div>
+    <div class="cat-actions" id="tasksActions"></div>
     <div class="add">
       <input class="field" id="taskInput" placeholder="Новая задача" maxlength="200">
       <button class="btn-add" data-add="task" aria-label="Добавить">+</button>
@@ -372,7 +338,6 @@
     <div class="card" id="taskList"></div>
   </section>
 
-  <!-- ПРИВЫЧКИ -->
   <section class="section" id="s-habits">
     <div class="add">
       <input class="field" id="habitInput" placeholder="Новая привычка" maxlength="200">
@@ -381,7 +346,6 @@
     <div class="card" id="habitList"></div>
   </section>
 
-  <!-- ПОКУПКИ -->
   <section class="section" id="s-shop">
     <div class="chips" id="shopChips"></div>
     <div class="cat-actions" id="shopActions"></div>
@@ -392,8 +356,9 @@
     <div class="card" id="shopList"></div>
   </section>
 
-  <!-- ЦЕЛИ -->
   <section class="section" id="s-goals">
+    <div class="chips" id="goalsChips"></div>
+    <div class="cat-actions" id="goalsActions"></div>
     <div class="stats" id="goalStats"></div>
     <div class="add">
       <input class="field" id="goalInput" placeholder="Новая цель" maxlength="200">
@@ -402,7 +367,6 @@
     <div class="card" id="goalList"></div>
   </section>
 
-  <!-- ИДЕИ -->
   <section class="section" id="s-ideas">
     <div class="chips" id="ideasChips"></div>
     <div class="cat-actions" id="ideasActions"></div>
@@ -413,22 +377,28 @@
     <div class="card" id="ideaList"></div>
   </section>
 
-  <!-- ЕЩЁ -->
   <section class="section" id="s-settings">
     <div class="card">
       <div class="row" data-export>
         <div class="setting-icon">⬇️</div>
-        <div class="grow title">Экспорт данных</div>
+        <div class="grow title">Экспорт личных данных</div>
         <span class="chev">›</span>
       </div>
       <div class="row" data-import>
         <div class="setting-icon">⬆️</div>
-        <div class="grow title">Импорт данных</div>
+        <div class="grow title">Импорт личных данных</div>
         <span class="chev">›</span>
       </div>
       <div class="row" data-reset>
         <div class="setting-icon">🗑</div>
-        <div class="grow title" style="color:var(--danger)">Очистить всё</div>
+        <div class="grow title" style="color:var(--danger)">Очистить идеи и привычки</div>
+      </div>
+    </div>
+    <div class="sec-label">Вступить в категорию</div>
+    <div class="card">
+      <div class="join-box">
+        <input class="field" id="joinCode" placeholder="Код приглашения" maxlength="20" autocomplete="off">
+        <button class="btn-add small" id="joinBtn">OK</button>
       </div>
     </div>
     <input type="file" id="importFile" accept="application/json" hidden>
@@ -498,7 +468,13 @@
 
 <script>
 (() => {
-  const KEY = "planner.v1";
+  // ---------- Настройки подключения ----------
+  const SUPA_URL = "https://uesnveuvlgtbxmgdgfaj.supabase.co";
+  const SUPA_KEY = "sb_publishable_gGtte8PzNPCw9FvikqpN2A_ULbRy3A0";
+  const AUTH_URL = SUPA_URL + "/functions/v1/telegram-auth";
+  const LOCAL_KEY = "planner.v2";
+  const REMOTE = ["tasks", "goals", "shop"];
+
   const tg = window.Telegram?.WebApp;
   if (tg) {
     tg.ready(); tg.expand();
@@ -509,7 +485,7 @@
   const pad = n => String(n).padStart(2, "0");
   const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   const todayKey = () => keyOf(new Date());
-  const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const haptic = t => tg?.HapticFeedback?.impactOccurred(t || "light");
   const notify = t => tg?.HapticFeedback?.notificationOccurred(t);
@@ -518,77 +494,139 @@
   }
 
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms = 1800) {
     const t = document.getElementById("toast");
-    t.textContent = msg; t.classList.add("show");
+    t.innerHTML = msg; t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+    toastTimer = setTimeout(() => t.classList.remove("show"), ms);
   }
 
-  // ---------- Данные ----------
-  const EMPTY = () => ({ ideas:[], ideaCats:[], shop:[], shopCats:[], goals:[], tasks:[], habits:[] });
-
-  function migrate(s) {
-    s = { ...EMPTY(), ...s };
-    s.goals.forEach(g => {
-      g.progress ||= 0;
-      g.priority ||= "low";
-      g.subtasks ||= [];
-      g.history ||= [];
-    });
+  // ---------- Личные данные (идеи и привычки) на телефоне ----------
+  const isRemote = kind => REMOTE.includes(kind);
+  let state = loadLocal();
+  function loadLocal() {
+    try {
+      const s = JSON.parse(localStorage.getItem(LOCAL_KEY));
+      if (s && typeof s === "object") return migrateLocal(s);
+    } catch {}
+    return { ideas:[], ideaCats:[], habits:[] };
+  }
+  function migrateLocal(s) {
+    s = { ideas:[], ideaCats:[], habits:[], ...s };
+    s.ideas.forEach(i => { i.priority ||= "low"; });
     s.habits.forEach(h => {
       h.target ||= 1;
       h.counts ||= {};
-      if (h.days) {
-        h.days.forEach(k => { if (!h.counts[k]) h.counts[k] = h.target; });
-        delete h.days;
-      }
+      if (h.days) { h.days.forEach(k => { if (!h.counts[k]) h.counts[k] = h.target; }); delete h.days; }
     });
-    s.tasks.forEach(t => { t.priority ||= "low"; });
-    s.ideas.forEach(i => { i.priority ||= "low"; });
-    s.shop.forEach(i => { i.priority ||= "low"; i.done ||= false; });
     return s;
   }
-  let state = load();
-  function load() {
-    try {
-      const s = JSON.parse(localStorage.getItem(KEY));
-      if (s && typeof s === "object") return migrate(s);
-    } catch {}
-    return EMPTY();
-  }
-  function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+  function saveLocal() { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); }
 
-  // ---------- Вычисления ----------
+  // ---------- Общие данные из Supabase ----------
+  let sb = null;
+  let token = null;
+  let me = null;
+  const remote = { tasks:[], goals:[], shop:[], cats:{ tasks:[], goals:[], shop:[] } };
+
+  const fromRow = r => ({ ...r.data, id: r.id, categoryId: r.category_id, ownerId: r.owner_id });
+  const stripped = item => { const { id, ownerId, categoryId, ...rest } = item; return rest; };
+
+  async function login() {
+    const initData = tg?.initData;
+    if (!initData) return gate("Откройте приложение из Telegram", "Планер работает внутри бота.");
+    try {
+      const res = await fetch(AUTH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData }),
+      });
+      const j = await res.json();
+      if (!res.ok || !j.token) return gate("Не удалось войти", "Перезапустите приложение из бота.");
+      token = j.token; me = Number(j.tg_id);
+      sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+      });
+      sb.realtime.setAuth(token);
+      return true;
+    } catch {
+      return gate("Нет связи", "Проверьте интернет и откройте приложение ещё раз.");
+    }
+  }
+  function gate(title, text) {
+    document.getElementById("gateTitle").textContent = title;
+    document.getElementById("gateText").textContent = text;
+    document.getElementById("gate").hidden = false;
+    return false;
+  }
+
+  async function loadRemote() {
+    const [items, cats] = await Promise.all([
+      sb.from("items").select("*").in("kind", REMOTE),
+      sb.from("categories").select("*").in("kind", REMOTE),
+    ]);
+    if (items.error || cats.error) { toast("Нет связи с сервером"); return; }
+    for (const k of REMOTE) {
+      remote[k] = items.data.filter(r => r.kind === k).map(fromRow);
+      remote.cats[k] = cats.data.filter(c => c.kind === k).map(c => ({
+        id: c.id, name: c.name, ownerId: Number(c.owner_id), inviteCode: c.invite_code,
+      }));
+    }
+    render(false);
+  }
+
+  function subscribe() {
+    const reload = () => loadRemote();
+    sb.channel("planner")
+      .on("postgres_changes", { event: "*", schema: "public", table: "items" }, reload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, reload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "category_members" }, reload)
+      .subscribe();
+  }
+
+  async function saveRemote(kind, item) {
+    const { error } = await sb.from("items").upsert({
+      id: item.id,
+      kind,
+      category_id: item.categoryId || null,
+      owner_id: item.ownerId || me,
+      data: stripped(item),
+    });
+    if (error) toast("Не сохранилось, проверьте связь");
+  }
+  async function persist(kind, item) {
+    if (isRemote(kind)) return saveRemote(kind, item);
+    saveLocal();
+  }
+
+  // ---------- Списки и категории ----------
+  const listOf = kind => isRemote(kind) ? remote[kind] : state[kind];
+  const catsOf = kind => isRemote(kind) ? remote.cats[kind] : state.ideaCats;
+  const catById = (kind, id) => catsOf(kind).find(c => c.id === id);
+  const isOwner = (kind, cat) => !isRemote(kind) || cat.ownerId === me;
+  const filters = { ideas:"all", tasks:"all", goals:"all", shop:"all" };
+
+  // ---------- Прогресс, привычки, даты ----------
   const PRIO_LABELS = {
-    ideas: { high: "Крутые", mid: "Необычные", low: "Обычные" },
-    tasks: { high: "Важная", mid: "Средняя", low: "Обычная" },
-    goals: { high: "Важные", mid: "Срочные", low: "Обычные" },
-    shop:  { high: "Срочно", mid: "Не забыть", low: "Надо" }
+    ideas: { high:"Крутые", mid:"Необычные", low:"Обычные" },
+    tasks: { high:"Важная", mid:"Средняя", low:"Обычная" },
+    goals: { high:"Важные", mid:"Срочные", low:"Обычные" },
+    shop:  { high:"Срочно", mid:"Не забыть", low:"Надо" },
   };
-  const PRIO_ORDER = { high: 0, mid: 1, low: 2 };
+  const PRIO_ORDER = { high:0, mid:1, low:2 };
   const byPrio = (x, y) => PRIO_ORDER[x.priority || "low"] - PRIO_ORDER[y.priority || "low"];
 
-  // Категории: у идей и покупок свои списки
-  const CAT_KEY = { ideas: "ideaCats", shop: "shopCats" };
-  const catsOf = kind => state[CAT_KEY[kind]];
-  const catById = (kind, id) => catsOf(kind).find(c => c.id === id);
-  const filters = { ideas: "all", shop: "all" };
-
   function goalProgress(g) {
-    if (g.subtasks.length) {
-      return Math.round(g.subtasks.filter(s => s.done).length / g.subtasks.length * 100);
-    }
-    return g.progress;
+    if (g.subtasks?.length) return Math.round(g.subtasks.filter(s => s.done).length / g.subtasks.length * 100);
+    return g.progress || 0;
   }
-  // Записывает прогресс в историю, одна запись на день
   function setProgress(g, p) {
     if (g.progress === p) return false;
     g.progress = p;
     const t = todayKey();
+    g.history ||= [];
     const last = g.history[g.history.length - 1];
-    if (last && last.d === t) last.p = p;
-    else g.history.push({ d: t, p });
+    if (last && last.d === t) last.p = p; else g.history.push({ d: t, p });
     return true;
   }
 
@@ -609,20 +647,15 @@
     const out = [];
     for (let i = n - 1; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
-      out.push({
-        key: keyOf(d),
-        label: d.toLocaleDateString("ru-RU", { weekday:"short" }).slice(0,2).toUpperCase(),
-        num: d.getDate()
-      });
+      out.push({ key: keyOf(d), label: d.toLocaleDateString("ru-RU", { weekday:"short" }).slice(0,2).toUpperCase(), num: d.getDate() });
     }
     return out;
   }
 
-  // ---------- Дата ----------
+  // ---------- Дата и навигация ----------
   document.getElementById("date").textContent =
     new Date().toLocaleDateString("ru-RU", { weekday:"long", day:"numeric", month:"long" });
 
-  // ---------- Навигация ----------
   const titles = { today:"Сегодня", tasks:"Задачи", habits:"Привычки", shop:"Покупки", goals:"Цели", ideas:"Идеи", settings:"Ещё" };
   let current = null;
   function show(tab) {
@@ -638,13 +671,12 @@
   }
   document.querySelectorAll(".tab").forEach(b => b.onclick = () => { haptic("soft"); show(b.dataset.tab); });
 
-  // ---------- Категории (идеи и покупки) ----------
+  // ---------- Категории ----------
   function renderCatsFor(kind) {
     const box = document.getElementById(kind + "Chips");
     const actions = document.getElementById(kind + "Actions");
     const f = filters[kind];
-    const chip = (id, label) =>
-      `<button class="chip ${f === id ? "on" : ""}" data-cat="${id}">${esc(label)}</button>`;
+    const chip = (id, label) => `<button class="chip ${f === id ? "on" : ""}" data-cat="${id}">${esc(label)}</button>`;
     box.innerHTML = `<button class="chip" data-newcat="${kind}">＋ Категория</button>`
       + chip("all", "Все") + catsOf(kind).map(c => chip(c.id, c.name)).join("");
     box.querySelector("[data-newcat]").onclick = () => openNewCat(kind);
@@ -653,45 +685,108 @@
     });
 
     const active = catById(kind, f);
-    actions.innerHTML = active
-      ? `<button data-delcat="${active.id}">Удалить категорию «${esc(active.name)}»</button>`
-      : "";
-    actions.querySelectorAll("[data-delcat]").forEach(b => b.onclick = () => {
-      const cat = catById(kind, b.dataset.delcat);
-      state[kind].forEach(i => { if (i.categoryId === cat.id) i.categoryId = null; });
-      state[CAT_KEY[kind]] = catsOf(kind).filter(c => c.id !== cat.id);
-      filters[kind] = "all";
-      save(); render(true); notify("warning");
-      toast(`Категория «${cat.name}» удалена`);
-    });
+    if (!active) { actions.innerHTML = ""; return; }
+    const owner = isOwner(kind, active);
+    actions.innerHTML = (isRemote(kind) && owner ? `<button data-invite="${active.id}">Пригласить</button>` : "")
+      + (owner ? `<button class="danger" data-delcat="${active.id}">Удалить категорию</button>` : "");
+    actions.querySelectorAll("[data-invite]").forEach(b => b.onclick = () => invite(b.dataset.invite));
+    actions.querySelectorAll("[data-delcat]").forEach(b => b.onclick = () => deleteCategory(kind, b.dataset.delcat));
   }
+
+  async function createCategory(kind, name) {
+    if (isRemote(kind)) {
+      const { data, error } = await sb.from("categories").insert({ kind, name, owner_id: me }).select().single();
+      if (error) return toast("Не создалось");
+      remote.cats[kind].push({ id: data.id, name: data.name, ownerId: me });
+      filters[kind] = data.id;
+    } else {
+      const cat = { id: uid(), name };
+      state.ideaCats.push(cat); filters[kind] = cat.id; saveLocal();
+    }
+    render(true); haptic("medium"); toast("Категория создана");
+  }
+
+  async function deleteCategory(kind, id) {
+    const cat = catById(kind, id);
+    if (!cat) return;
+    if (isRemote(kind)) {
+      await sb.from("items").update({ category_id: null }).eq("category_id", id);
+      const { error } = await sb.from("categories").delete().eq("id", id);
+      if (error) return toast("Не удалилось");
+      remote[kind].forEach(i => { if (i.categoryId === id) i.categoryId = null; });
+      remote.cats[kind] = remote.cats[kind].filter(c => c.id !== id);
+    } else {
+      state.ideas.forEach(i => { if (i.categoryId === id) i.categoryId = null; });
+      state.ideaCats = state.ideaCats.filter(c => c.id !== id);
+      saveLocal();
+    }
+    filters[kind] = "all";
+    render(true); notify("warning"); toast(`Категория «${esc(cat.name)}» удалена`);
+  }
+
+  async function invite(catId) {
+    const { data: code, error } = await sb.rpc("create_invite", { cat: catId });
+    if (error || !code) return toast("Не получилось создать код");
+    const cat = remote.cats[currentKindOf(catId)]?.find(c => c.id === catId);
+    if (cat) cat.inviteCode = code;
+    toast(`Код приглашения: <b>${esc(code)}</b>`, 8000);
+    haptic("medium");
+  }
+  function currentKindOf(catId) {
+    return REMOTE.find(k => remote.cats[k].some(c => c.id === catId));
+  }
+
+  document.getElementById("joinBtn").onclick = async () => {
+    const input = document.getElementById("joinCode");
+    const code = input.value.trim();
+    if (!code || !sb) return shake(input);
+    const { error } = await sb.rpc("join_by_code", { code });
+    if (error) return toast("Код не подошёл");
+    input.value = "";
+    await loadRemote();
+    toast("Категория добавлена");
+  };
 
   // ---------- Добавление ----------
   const inputs = { idea:"ideaInput", shop:"shopInput", goal:"goalInput", task:"taskInput", habit:"habitInput" };
+  const catKindOf = { idea:"ideas", shop:"shop", goal:"goals", task:"tasks" };
   document.querySelectorAll("[data-add]").forEach(btn => btn.onclick = () => add(btn.dataset.add));
   Object.entries(inputs).forEach(([kind, id]) =>
     document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") add(kind); })
   );
+
   function add(kind) {
     const el = document.getElementById(inputs[kind]);
     const text = el.value.trim();
     if (!text) return shake(el);
-    const item = { id: uid(), title: text, note: "", createdAt: Date.now() };
+    const ck = catKindOf[kind];
+    const cat = ck ? catById(ck, filters[ck]) : undefined;
+    const categoryId = cat ? cat.id : null;
     let msg = "Добавлено";
-    if (kind === "idea" || kind === "shop") {
-      const cat = catById(kind, filters[kind]);
-      const categoryId = cat ? cat.id : null;
-      state[kind].unshift({ ...item, categoryId, priority: "low", done: false });
-      if (cat) msg = `Добавлено в «${cat.name}»`;
+    if (cat) msg = `Добавлено в «${esc(cat.name)}»`;
+
+    if (kind === "idea") {
+      state.ideas.unshift({ id: uid(), title: text, note:"", categoryId, priority:"low", createdAt: Date.now() });
+      saveLocal();
+    }
+    if (kind === "habit") {
+      state.habits.unshift({ id: uid(), title: text, target:1, counts:{}, createdAt: Date.now() });
+      saveLocal();
+    }
+    if (kind === "task") {
+      const t = { id: uid(), title:text, note:"", categoryId, ownerId: me, priority:"low", done:false, doneAt:null, createdAt: Date.now() };
+      remote.tasks.unshift(t); persist("tasks", t);
     }
     if (kind === "goal") {
-      state.goals.unshift({ ...item, progress: 0, priority: "low", subtasks: [], history: [{ d: todayKey(), p: 0 }] });
+      const g = { id: uid(), title:text, note:"", categoryId, ownerId: me, priority:"low", progress:0, subtasks:[], history:[{ d: todayKey(), p: 0 }], createdAt: Date.now() };
+      remote.goals.unshift(g); persist("goals", g);
     }
-    if (kind === "task")  state.tasks.unshift({ ...item, done: false, doneAt: null, priority: "low" });
-    if (kind === "habit") state.habits.unshift({ ...item, target: 1, counts: {} });
+    if (kind === "shop") {
+      const s = { id: uid(), title:text, note:"", categoryId, ownerId: me, priority:"low", done:false, createdAt: Date.now() };
+      remote.shop.unshift(s); persist("shop", s);
+    }
     el.value = "";
-    save(); render(true); haptic("medium");
-    toast(msg);
+    render(true); haptic("medium"); toast(msg);
   }
 
   // ---------- Фильтр задач ----------
@@ -703,35 +798,35 @@
     render(true);
   });
 
-  // ---------- Рендер: общие куски ----------
+  // ---------- Рендер ----------
   function render(animateIn = false) {
-    renderToday(animateIn); renderTasks(animateIn); renderHabits(animateIn);
+    renderToday(animateIn);
+    renderCatsFor("tasks"); renderTasks(animateIn);
+    renderHabits(animateIn);
     renderCatsFor("shop"); renderShop(animateIn);
-    renderGoals(animateIn);
+    renderCatsFor("goals"); renderGoals(animateIn);
     renderCatsFor("ideas"); renderIdeas(animateIn);
   }
-  const emptyHTML = (emoji, text, compact) =>
-    `<div class="empty ${compact ? "compact" : ""}"><span class="emoji">${emoji}</span>${text}</div>`;
+  const emptyHTML = (emoji, text, compact) => `<div class="empty ${compact ? "compact" : ""}"><span class="emoji">${emoji}</span>${text}</div>`;
   const rowCls = (base, a) => a ? `${base} in` : base;
   const delay = n => `style="animation-delay:${Math.min(n*45, 450)}ms"`;
   const xBtn = id => `<button class="x-btn" data-del="${id}" aria-label="Удалить">✕</button>`;
 
-  function bindCommon(el, list) {
-    el.querySelectorAll("[data-del]").forEach(b => b.onclick = e => {
-      e.stopPropagation();
-      removeItem(list, b.dataset.del);
-    });
-    el.querySelectorAll("[data-open]").forEach(row =>
-      row.onclick = () => openEdit(row.dataset.open, row.dataset.id)
-    );
+  function bindCommon(el, kind) {
+    el.querySelectorAll("[data-del]").forEach(b => b.onclick = e => { e.stopPropagation(); removeItem(kind, b.dataset.del); });
+    el.querySelectorAll("[data-open]").forEach(row => row.onclick = () => openEdit(row.dataset.open, row.dataset.id));
+  }
+
+  function catNameOf(kind, item) {
+    const c = catById(kind, item.categoryId);
+    return c ? esc(c.name) : "";
   }
 
   function goalRow(g, cls, delayAttr) {
     const p = goalProgress(g);
     const R = 22, C = 2 * Math.PI * R;
-    const meta = g.subtasks.length
-      ? `<div class="meta">${g.subtasks.filter(s => s.done).length}/${g.subtasks.length} подзадач</div>`
-      : (g.note ? `<div class="meta">${esc(g.note).slice(0,90)}</div>` : "");
+    const subs = g.subtasks?.length ? `${g.subtasks.filter(s => s.done).length}/${g.subtasks.length} подзадач` : "";
+    const meta = [catNameOf("goals", g), subs || (g.note ? esc(g.note).slice(0,90) : "")].filter(Boolean).join(" · ");
     return `
       <div class="${cls}" ${delayAttr} data-open="goals" data-id="${g.id}">
         <div class="ring">
@@ -743,13 +838,14 @@
         </div>
         <div class="grow">
           <div class="title ${p >= 100 ? "done" : ""}"><span class="pdot g-${g.priority || "low"}"></span>${esc(g.title)}</div>
-          ${meta}
+          ${meta ? `<div class="meta">${meta}</div>` : ""}
         </div>
         <div class="goal-actions">${xBtn(g.id)}</div>
       </div>`;
   }
 
   function taskRow(t, cls, delayAttr) {
+    const meta = [catNameOf("tasks", t), t.note ? esc(t.note).slice(0,90) : ""].filter(Boolean).join(" · ");
     return `
       <div class="${cls}" ${delayAttr} data-open="tasks" data-id="${t.id}">
         <button class="check ${t.done ? "on" : ""}" data-toggle="${t.id}" aria-label="Отметить">
@@ -757,7 +853,7 @@
         </button>
         <div class="grow">
           <div class="title ${t.done ? "done" : ""}"><span class="pdot ${t.priority || "low"}"></span>${esc(t.title)}</div>
-          ${t.note ? `<div class="meta">${esc(t.note).slice(0,90)}</div>` : ""}
+          ${meta ? `<div class="meta">${meta}</div>` : ""}
         </div>
         ${xBtn(t.id)}
       </div>`;
@@ -765,10 +861,11 @@
   function bindTasks(el) {
     el.querySelectorAll("[data-toggle]").forEach(b => b.onclick = e => {
       e.stopPropagation();
-      const t = state.tasks.find(x => x.id === b.dataset.toggle);
+      const t = remote.tasks.find(x => x.id === b.dataset.toggle);
+      if (!t) return;
       t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
       b.classList.toggle("on", t.done); haptic("soft");
-      save();
+      persist("tasks", t);
       const row = b.closest(".row");
       setTimeout(() => { row.classList.add("out"); setTimeout(() => render(false), 300); }, 500);
     });
@@ -778,8 +875,7 @@
     const c = dayCount(h, d.key);
     const done = c >= h.target;
     const inner = h.target > 1 ? `${c}/${h.target}` : d.num;
-    return `<button class="day ${done ? "on" : ""} ${d.key === todayKey() ? "today" : ""}"
-      data-day="${h.id}|${d.key}"><small>${d.label}</small><i>${inner}</i></button>`;
+    return `<button class="day ${done ? "on" : ""} ${d.key === todayKey() ? "today" : ""}" data-day="${h.id}|${d.key}"><small>${d.label}</small><i>${inner}</i></button>`;
   }
   function habitPill(h) {
     const c = dayCount(h, todayKey());
@@ -792,13 +888,11 @@
     const taskBox = document.getElementById("todayTasks");
     const habitBox = document.getElementById("todayHabits");
 
-    const goal = [...state.goals].filter(g => goalProgress(g) < 100).sort(byPrio)[0];
-    goalBox.innerHTML = goal
-      ? goalRow(goal, "row goal", "")
-      : emptyHTML("🎯", "Поставьте цель, и она появится здесь", true);
+    const goal = [...remote.goals].filter(g => goalProgress(g) < 100).sort(byPrio)[0];
+    goalBox.innerHTML = goal ? goalRow(goal, "row goal", "") : emptyHTML("🎯", "Поставьте цель, и она появится здесь", true);
     bindCommon(goalBox, "goals");
 
-    const tasks = state.tasks.filter(t => !t.done).sort(byPrio);
+    const tasks = remote.tasks.filter(t => !t.done).sort(byPrio);
     taskBox.innerHTML = tasks.length
       ? tasks.map((t, n) => taskRow(t, rowCls("row", a), delay(n))).join("")
       : emptyHTML("✨", "На сегодня задач нет", true);
@@ -819,26 +913,35 @@
     habitBox.querySelectorAll("[data-hinc]").forEach(b => b.onclick = e => {
       e.stopPropagation();
       const h = state.habits.find(x => x.id === b.dataset.hinc);
-      incHabit(h, todayKey()); save(); haptic("light"); render(false);
+      incHabit(h, todayKey()); saveLocal(); haptic("light"); render(false);
     });
     bindCommon(habitBox, "habits");
+  }
+
+  // ---------- Задачи ----------
+  function renderTasks(a) {
+    const el = document.getElementById("taskList");
+    const f = filters.tasks;
+    const list = remote.tasks
+      .filter(t => (taskFilter === "done" ? t.done : !t.done) && (f === "all" || t.categoryId === f))
+      .sort(byPrio);
+    if (!list.length) return el.innerHTML = emptyHTML(taskFilter === "done" ? "📭" : "✨",
+      taskFilter === "done" ? "Пока нет выполненных задач" : "Все задачи выполнены");
+    el.innerHTML = list.map((t, n) => taskRow(t, rowCls("row", a), delay(n))).join("");
+    bindTasks(el);
+    bindCommon(el, "tasks");
   }
 
   // ---------- Покупки ----------
   function renderShop(a) {
     const el = document.getElementById("shopList");
     const f = filters.shop;
-    const list = state.shop
+    const list = remote.shop
       .filter(i => f === "all" || i.categoryId === f)
       .sort((x, y) => (x.done - y.done) || byPrio(x, y));
-    if (!list.length) {
-      return el.innerHTML = emptyHTML("🛒", f === "all"
-        ? "Добавьте первую покупку"
-        : `В категории «${esc(catById("shop", f).name)}» пока пусто`);
-    }
+    if (!list.length) return el.innerHTML = emptyHTML("🛒", f === "all" ? "Добавьте первую покупку" : "В этой категории пока пусто");
     el.innerHTML = list.map((i, n) => {
-      const cat = catById("shop", i.categoryId);
-      const meta = cat && f === "all" ? `<div class="meta">${esc(cat.name)}</div>` : "";
+      const meta = catNameOf("shop", i);
       return `
       <div class="${rowCls("row", a)}" ${delay(n)} data-open="shop" data-id="${i.id}">
         <button class="check ${i.done ? "on" : ""}" data-sbuy="${i.id}" aria-label="Куплено">
@@ -846,34 +949,48 @@
         </button>
         <div class="grow">
           <div class="title ${i.done ? "done" : ""}"><span class="pdot s-${i.priority || "low"}"></span>${esc(i.title)}</div>
-          ${meta}
+          ${meta ? `<div class="meta">${meta}</div>` : ""}
         </div>
         ${xBtn(i.id)}
       </div>`;
     }).join("");
     el.querySelectorAll("[data-sbuy]").forEach(b => b.onclick = e => {
       e.stopPropagation();
-      const i = state.shop.find(x => x.id === b.dataset.sbuy);
-      i.done = !i.done; save(); haptic("soft"); render(false);
+      const i = remote.shop.find(x => x.id === b.dataset.sbuy);
+      if (!i) return;
+      i.done = !i.done; haptic("soft"); persist("shop", i); render(false);
     });
     bindCommon(el, "shop");
+  }
+
+  // ---------- Цели ----------
+  function renderGoals(a) {
+    const el = document.getElementById("goalList");
+    const f = filters.goals;
+    const total = remote.goals.length;
+    const complete = remote.goals.filter(g => goalProgress(g) >= 100).length;
+    const avg = total ? Math.round(remote.goals.reduce((s, g) => s + goalProgress(g), 0) / total) : 0;
+    document.getElementById("goalStats").innerHTML = `
+      <div class="stat"><b>${total}</b><span>всего</span></div>
+      <div class="stat"><b>${complete}</b><span>готово</span></div>
+      <div class="stat"><b>${avg}%</b><span>средний</span></div>`;
+    const list = [...remote.goals].filter(g => f === "all" || g.categoryId === f).sort(byPrio);
+    if (!list.length) return el.innerHTML = emptyHTML("🎯", total ? "В этой категории пока пусто" : "Поставьте первую цель");
+    el.innerHTML = list.map((g, n) => goalRow(g, rowCls("row goal", a), delay(n))).join("");
+    bindCommon(el, "goals");
   }
 
   // ---------- Идеи ----------
   function renderIdeas(a) {
     const el = document.getElementById("ideaList");
     const f = filters.ideas;
-    const list = state.ideas
-      .filter(i => f === "all" || i.categoryId === f)
-      .sort(byPrio);
+    const list = state.ideas.filter(i => f === "all" || i.categoryId === f).sort(byPrio);
     if (!list.length) {
-      const msg = f === "all" ? "Запишите первую идею —<br>она не потеряется"
-        : `В категории «${esc(catById("ideas", f).name)}» пока пусто`;
+      const msg = f === "all" ? "Запишите первую идею —<br>она не потеряется" : "В этой категории пока пусто";
       return el.innerHTML = emptyHTML("💡", msg);
     }
     el.innerHTML = list.map((i, n) => {
-      const cat = catById("ideas", i.categoryId);
-      const meta = [cat && f === "all" ? cat.name : "", i.note ? esc(i.note).slice(0,90) : ""].filter(Boolean).join(" · ");
+      const meta = [catNameOf("ideas", i), i.note ? esc(i.note).slice(0,90) : ""].filter(Boolean).join(" · ");
       return `
       <div class="${rowCls("row", a)}" ${delay(n)} data-open="ideas" data-id="${i.id}">
         <div class="grow">
@@ -884,35 +1001,6 @@
       </div>`;
     }).join("");
     bindCommon(el, "ideas");
-  }
-
-  // ---------- Цели ----------
-  function renderGoals(a) {
-    const el = document.getElementById("goalList");
-    const total = state.goals.length;
-    const complete = state.goals.filter(g => goalProgress(g) >= 100).length;
-    const avg = total ? Math.round(state.goals.reduce((s,g) => s + goalProgress(g), 0) / total) : 0;
-    document.getElementById("goalStats").innerHTML = `
-      <div class="stat"><b>${total}</b><span>всего</span></div>
-      <div class="stat"><b>${complete}</b><span>готово</span></div>
-      <div class="stat"><b>${avg}%</b><span>средний</span></div>`;
-    if (!total) return el.innerHTML = emptyHTML("🎯", "Поставьте первую цель");
-    el.innerHTML = [...state.goals].sort(byPrio).map((g, n) =>
-      goalRow(g, rowCls("row goal", a), delay(n))).join("");
-    bindCommon(el, "goals");
-  }
-
-  // ---------- Задачи ----------
-  function renderTasks(a) {
-    const el = document.getElementById("taskList");
-    const list = state.tasks
-      .filter(t => taskFilter === "done" ? t.done : !t.done)
-      .sort(byPrio);
-    if (!list.length) return el.innerHTML = emptyHTML(taskFilter === "done" ? "📭" : "✨",
-      taskFilter === "done" ? "Пока нет выполненных задач" : "Все задачи выполнены");
-    el.innerHTML = list.map((t, n) => taskRow(t, rowCls("row", a), delay(n))).join("");
-    bindTasks(el);
-    bindCommon(el, "tasks");
   }
 
   // ---------- Привычки ----------
@@ -936,36 +1024,42 @@
       e.stopPropagation();
       const [id, key] = b.dataset.day.split("|");
       const h = state.habits.find(x => x.id === id);
-      incHabit(h, key);
-      save(); haptic("light");
+      incHabit(h, key); saveLocal(); haptic("light");
       b.classList.add("pop");
       setTimeout(() => render(false), 260);
     });
     bindCommon(el, "habits");
   }
 
-  // ---------- Удаление с отменой ----------
+  // ---------- Удаление ----------
   let lastRemoved = null;
-  function removeItem(list, id) {
-    const idx = state[list].findIndex(x => x.id === id);
+  async function removeItem(kind, id) {
+    if (isRemote(kind)) {
+      const arr = remote[kind];
+      const idx = arr.findIndex(x => x.id === id);
+      if (idx < 0) return;
+      arr.splice(idx, 1);
+      render(false); notify("warning");
+      const { error } = await sb.from("items").delete().eq("id", id);
+      toast(error ? "Не удалилось" : "Удалено");
+      if (error) loadRemote();
+      return;
+    }
+    const arr = state[kind];
+    const idx = arr.findIndex(x => x.id === id);
     if (idx < 0) return;
-    lastRemoved = { list, item: state[list][idx], idx };
-    state[list].splice(idx, 1);
-    save(); render(false); notify("warning");
-    const t = document.getElementById("toast");
-    t.innerHTML = `Удалено · <span id="undo" style="text-decoration:underline;cursor:pointer">Отменить</span>`;
-    t.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.classList.remove("show"); lastRemoved = null; }, 4000);
+    lastRemoved = { kind, item: arr[idx], idx };
+    arr.splice(idx, 1);
+    saveLocal(); render(false); notify("warning");
+    toast(`Удалено · <span id="undo" style="text-decoration:underline;cursor:pointer">Отменить</span>`, 4000);
     document.getElementById("undo").onclick = undoRemove;
   }
   function undoRemove() {
     if (!lastRemoved) return;
-    const { list, item, idx } = lastRemoved;
-    state[list].splice(idx, 0, item);
+    const { kind, item, idx } = lastRemoved;
+    state[kind].splice(idx, 0, item);
     lastRemoved = null;
-    save(); render(false);
-    document.getElementById("toast").classList.remove("show");
+    saveLocal(); render(false);
     toast("Восстановлено");
   }
 
@@ -985,14 +1079,10 @@
   document.querySelectorAll("#editPrio button").forEach(b => b.onclick = () => { haptic("soft"); setPrioUI(b.dataset.prio); });
 
   function chartSVG(history) {
-    if (!history.length) return `<div class="meta" style="text-align:center;padding:20px 0">Пока нет записей</div>`;
+    if (!history?.length) return `<div class="meta" style="text-align:center;padding:20px 0">Пока нет записей</div>`;
     const days = lastDays(30);
     const sorted = [...history].sort((a, b) => a.d.localeCompare(b.d));
-    const vals = days.map(d => {
-      let v = 0;
-      for (const x of sorted) if (x.d <= d.key) v = x.p;
-      return v;
-    });
+    const vals = days.map(d => { let v = 0; for (const x of sorted) if (x.d <= d.key) v = x.p; return v; });
     const W = 300, H = 120, P = 10;
     const pts = vals.map((v, i) => [i * (W / 29), H - P - (v / 100) * (H - 2 * P)]);
     const line = pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" ");
@@ -1001,12 +1091,10 @@
     const fmt = k => `${k.slice(8)}.${k.slice(5,7)}`;
     return `
       <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="cg" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stop-color="currentColor" stop-opacity=".16"/>
-            <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
+        <defs><linearGradient id="cg" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="currentColor" stop-opacity=".16"/>
+          <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+        </linearGradient></defs>
         <polygon points="${area}" fill="url(#cg)"/>
         <polyline points="${line}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
         <circle cx="${lx}" cy="${ly}" r="4" fill="currentColor"/>
@@ -1016,7 +1104,7 @@
 
   function renderSubs() {
     if (!editing || editing.list !== "goals") return;
-    const g = state.goals.find(x => x.id === editing.id);
+    const g = remote.goals.find(x => x.id === editing.id);
     if (!g) return;
     const box = document.getElementById("editSubs");
     box.innerHTML = g.subtasks.length ? g.subtasks.map(s => `
@@ -1029,8 +1117,7 @@
       </div>`).join("") : `<div class="meta sub-empty">Подзадач пока нет</div>`;
     box.querySelectorAll("[data-stog]").forEach(b => b.onclick = () => {
       const s = g.subtasks.find(x => x.id === b.dataset.stog);
-      s.done = !s.done;
-      afterSubChange(g);
+      s.done = !s.done; afterSubChange(g);
     });
     box.querySelectorAll("[data-sdel]").forEach(b => b.onclick = () => {
       g.subtasks = g.subtasks.filter(x => x.id !== b.dataset.sdel);
@@ -1041,7 +1128,8 @@
   function afterSubChange(g) {
     const was = g.progress;
     const changed = setProgress(g, goalProgress(g));
-    save(); renderSubs(); render(false);
+    persist("goals", g);
+    renderSubs(); render(false);
     document.getElementById("editChart").innerHTML = chartSVG(g.history);
     haptic("light");
     if (changed && was < 100 && g.progress >= 100) { notify("success"); toast("Цель достигнута 🎉"); }
@@ -1050,7 +1138,8 @@
     const input = document.getElementById("subInput");
     const title = input.value.trim();
     if (!title || !editing) return shake(input);
-    const g = state.goals.find(x => x.id === editing.id);
+    const g = remote.goals.find(x => x.id === editing.id);
+    if (!g) return;
     g.subtasks.push({ id: uid(), title, done: false });
     input.value = "";
     afterSubChange(g);
@@ -1060,7 +1149,7 @@
   });
 
   function openEdit(list, id) {
-    const item = state[list].find(x => x.id === id);
+    const item = listOf(list).find(x => x.id === id);
     if (!item) return;
     editing = { list, id };
     document.querySelector(".sheet h3").textContent = "Изменить";
@@ -1071,23 +1160,21 @@
     document.getElementById("editNote").value = item.note || "";
     document.getElementById("editDelete").hidden = false;
 
-    // Категории (идеи и покупки)
     const catBox = document.getElementById("editCat");
-    if (CAT_KEY[list]) {
+    const ck = Object.keys(catKindOf).map(k => catKindOf[k]).includes(list) ? list : null;
+    if (ck) {
       catBox.hidden = false;
-      catBox.innerHTML =
-        `<button class="chip" data-ecat="none">Без категории</button>` +
-        catsOf(list).map(c => `<button class="chip" data-ecat="${c.id}">${esc(c.name)}</button>`).join("");
+      catBox.innerHTML = `<button class="chip" data-ecat="none">Без категории</button>`
+        + catsOf(list).map(c => `<button class="chip" data-ecat="${c.id}">${esc(c.name)}</button>`).join("");
       catBox.querySelectorAll("[data-ecat]").forEach(b => b.onclick = () => {
         haptic("soft");
         setCatUI(b.dataset.ecat === "none" ? null : b.dataset.ecat);
       });
-      setCatUI(catById(list, item.categoryId) ? item.categoryId : null);
+      setCatUI(item.categoryId && catById(list, item.categoryId) ? item.categoryId : null);
     } else {
       catBox.hidden = true;
     }
 
-    // Приоритеты (идеи, покупки, задачи, цели)
     const labels = PRIO_LABELS[list];
     const prioEl = document.getElementById("editPrio");
     prioEl.hidden = !labels;
@@ -1096,7 +1183,6 @@
       setPrioUI(item.priority || "low");
     }
 
-    // Прогресс и подзадачи (цели)
     const isGoal = list === "goals";
     document.getElementById("editProgress").hidden = true;
     document.getElementById("editProgress").value = isGoal ? goalProgress(item) : "";
@@ -1107,7 +1193,6 @@
       document.getElementById("editChart").innerHTML = chartSVG(item.history);
     }
 
-    // Регулярность (привычки)
     const tEl = document.getElementById("editTarget");
     tEl.hidden = list !== "habits";
     tEl.value = list === "habits" ? item.target : "";
@@ -1134,24 +1219,25 @@
   }
   document.getElementById("editCancel").onclick = closeEdit;
   document.getElementById("sheetBg").onclick = e => { if (e.target.id === "sheetBg") closeEdit(); };
-  document.getElementById("editSave").onclick = () => {
+
+  document.getElementById("editSave").onclick = async () => {
     if (!editing) return;
     if (editing.list === "newcat") {
       const input = document.getElementById("editTitle");
       const name = input.value.trim();
       if (!name) return shake(input);
-      const cat = { id: uid(), name };
-      catsOf(editing.kind).push(cat);
-      filters[editing.kind] = cat.id;
-      closeEdit(); save(); render(true); haptic("medium"); toast("Категория создана");
+      const kind = editing.kind;
+      closeEdit();
+      await createCategory(kind, name);
       return;
     }
-    const item = state[editing.list].find(x => x.id === editing.id);
+    const item = listOf(editing.list).find(x => x.id === editing.id);
+    if (!item) return closeEdit();
     const title = document.getElementById("editTitle").value.trim();
     if (!title) return shake(document.getElementById("editTitle"));
     item.title = title;
     item.note = document.getElementById("editNote").value;
-    if (CAT_KEY[editing.list]) item.categoryId = editCategory;
+    if (catKindOf && Object.values(catKindOf).includes(editing.list)) item.categoryId = editCategory;
     if (PRIO_LABELS[editing.list]) item.priority = editPriority;
 
     let achieved = false;
@@ -1167,10 +1253,14 @@
       if (!Number.isNaN(t)) item.target = Math.min(10, Math.max(1, t));
     }
 
-    save(); closeEdit(); render(false);
+    const kind = editing.list;
+    closeEdit();
+    await persist(kind, item);
+    render(false);
     if (achieved) { notify("success"); toast("Цель достигнута 🎉"); }
     else toast("Сохранено");
   };
+
   document.getElementById("editDelete").onclick = () => {
     if (!editing) return;
     const { list, id } = editing;
@@ -1192,21 +1282,30 @@
     const f = e.target.files[0]; if (!f) return;
     try {
       const data = JSON.parse(await f.text());
-      state = migrate(data);
-      save(); render(true); toast("Данные импортированы");
+      state = migrateLocal(data);
+      saveLocal(); render(true); toast("Личные данные импортированы");
     } catch { toast("Не удалось прочитать файл"); }
   };
   document.querySelector("[data-reset]").onclick = () => {
     const go = () => {
-      state = EMPTY(); filters.ideas = "all"; filters.shop = "all";
-      save(); render(true); toast("Всё очищено");
+      state = { ideas:[], ideaCats:[], habits:[] };
+      filters.ideas = "all";
+      saveLocal(); render(true); toast("Идеи и привычки очищены");
     };
-    if (tg?.showConfirm) tg.showConfirm("Удалить все данные? Это необратимо.", ok => ok && go());
-    else if (confirm("Удалить все данные? Это необратимо.")) go();
+    if (tg?.showConfirm) tg.showConfirm("Очистить идеи и привычки на этом телефоне?", ok => ok && go());
+    else if (confirm("Очистить идеи и привычки на этом телефоне?")) go();
   };
 
   // ---------- Старт ----------
   show(localStorage.getItem("planner.tab") || "today");
+
+  (async () => {
+    const ok = await login();
+    if (!ok) return;
+    document.getElementById("gate").hidden = true;
+    await loadRemote();
+    subscribe();
+  })();
 })();
 </script>
 </body>
