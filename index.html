@@ -551,7 +551,7 @@
       }
       token = j.token; me = Number(j.tg_id);
       sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
-        global: { headers: { Authorization: `Bearer ${token}` } },
+        accessToken: async () => token,
       });
       sb.realtime.setAuth(token);
       return true;
