@@ -538,11 +538,17 @@
     try {
       const res = await fetch(AUTH_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPA_KEY,
+          Authorization: `Bearer ${SUPA_KEY}`,
+        },
         body: JSON.stringify({ initData }),
       });
-      const j = await res.json();
-      if (!res.ok || !j.token) return gate("Не удалось войти", "Перезапустите приложение из бота.");
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.token) {
+        return gate("Не удалось войти", `Ошибка: ${j.error || res.status}. Перезапустите приложение из бота.`);
+      }
       token = j.token; me = Number(j.tg_id);
       sb = window.supabase.createClient(SUPA_URL, SUPA_KEY, {
         global: { headers: { Authorization: `Bearer ${token}` } },
