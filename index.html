@@ -701,10 +701,11 @@
 
   async function createCategory(kind, name) {
     if (isRemote(kind)) {
-      const { data, error } = await sb.from("categories").insert({ kind, name, owner_id: me }).select().single();
+      const id = uid();
+      const { error } = await sb.from("categories").insert({ id, kind, name, owner_id: me });
       if (error) return toast("Не создалось: " + esc(error.message), 7000);
-      remote.cats[kind].push({ id: data.id, name: data.name, ownerId: me });
-      filters[kind] = data.id;
+      remote.cats[kind].push({ id, name, ownerId: me });
+      filters[kind] = id;
     } else {
       const cat = { id: uid(), name };
       state.ideaCats.push(cat); filters[kind] = cat.id; saveLocal();
