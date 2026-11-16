@@ -598,7 +598,7 @@
       owner_id: item.ownerId || me,
       data: stripped(item),
     });
-    if (error) toast("Не сохранилось, проверьте связь");
+    if (error) toast("Не сохранилось: " + esc(error.message), 7000);
   }
   async function persist(kind, item) {
     if (isRemote(kind)) return saveRemote(kind, item);
@@ -702,7 +702,7 @@
   async function createCategory(kind, name) {
     if (isRemote(kind)) {
       const { data, error } = await sb.from("categories").insert({ kind, name, owner_id: me }).select().single();
-      if (error) return toast("Не создалось");
+      if (error) return toast("Не создалось: " + esc(error.message), 7000);
       remote.cats[kind].push({ id: data.id, name: data.name, ownerId: me });
       filters[kind] = data.id;
     } else {
